@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ω FIELD / Ω色場観測室</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+/* ===== CSS（Mtps思想診断ツールの見た目に合わせた配色・書体・部品） ===== */
+:root{--color-bg:#050505;--color-text:#e0e6ed;--color-accent:#64ffda;--color-dim:#4a5568;--mute:#8493a8;--line:rgba(255,255,255,.12);--font-main:'Noto Sans JP',sans-serif;--font-mono:'Share Tech Mono',monospace;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--color-bg);color:var(--color-text);font:16px/1.75 var(--font-main);min-height:100vh;overflow-x:hidden}
+.scanline{position:fixed;inset:0;pointer-events:none;z-index:100;background:linear-gradient(to bottom,rgba(255,255,255,0),rgba(255,255,255,0) 50%,rgba(0,0,0,.1) 50%,rgba(0,0,0,.1));background-size:100% 4px}
+#bg{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+#bg i{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--color-accent);opacity:.2}
+main.container{position:relative;z-index:1;width:calc(100% - 24px);max-width:900px;margin:12px auto;min-height:calc(100vh - 24px);background:rgba(255,255,255,.01);border:1px solid rgba(255,255,255,.05);box-shadow:0 0 50px rgba(0,0,0,.5)}
+[hidden]{display:none!important}
+.screen{padding:32px 24px 56px;min-height:inherit}
+#s-title,#s-intro{text-align:center}
+#s-title .box,#s-intro .box{text-align:left}
+h1{font-family:var(--font-mono);font-size:clamp(30px,8vw,44px);text-transform:uppercase;letter-spacing:.2em;margin:28px 0 8px;font-weight:400;color:var(--color-accent);text-shadow:0 0 10px rgba(100,255,218,.3)}
+h1 small{font-family:var(--font-main);letter-spacing:.3em;color:var(--color-text);text-shadow:none}
+h2{font-family:var(--font-mono);font-size:20px;font-weight:400;letter-spacing:.15em;color:var(--color-accent);margin:28px 0 10px;text-transform:uppercase}
+.sub{color:var(--mute);margin:0 0 20px}
+.cat{font-size:clamp(16px,4.2vw,19px);color:var(--mute);margin:18px auto 32px;max-width:600px}
+.scanwrap{position:relative;overflow:hidden;height:2px;background:#2d3748;margin:8px auto 18px;max-width:420px}
+#scan{position:absolute;top:0;left:0;width:30%;height:2px;background:linear-gradient(90deg,transparent,var(--color-accent),transparent);box-shadow:0 0 10px var(--color-accent)}
+.btn{background:transparent;border:1px solid var(--color-accent);color:var(--color-accent);min-height:48px;padding:0 28px;font:inherit;font-family:var(--font-mono);font-size:17px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .3s ease;white-space:nowrap}
+.btn:hover,.btn:focus-visible{background:var(--color-accent);color:var(--color-bg);box-shadow:0 0 20px rgba(100,255,218,.4);outline:none}
+.btn.ghost{border-color:var(--line);color:var(--mute)}
+.btn.ghost:hover,.btn.ghost:focus-visible{background:rgba(255,255,255,.1);color:var(--color-text);box-shadow:none}
+.btn-x{border-color:#1DA1F2;color:#1DA1F2}.btn-x:hover,.btn-x:focus-visible{background:#1DA1F2;color:#fff;box-shadow:0 0 20px rgba(29,161,242,.4)}
+.btn-copy{border-color:#c084fc;color:#c084fc}.btn-copy:hover,.btn-copy:focus-visible{background:#c084fc;color:#fff;box-shadow:0 0 20px rgba(192,132,252,.4)}
+.box{background:rgba(255,255,255,.03);border-left:4px solid var(--color-dim);padding:16px 18px;margin:16px 0}
+.note{font-size:13px;color:var(--mute)}
+.bar{height:4px;background:#2d3748;margin:10px 0 28px}
+#prog{height:100%;width:0;background:var(--color-accent);box-shadow:0 0 10px var(--color-accent);transition:width .3s ease}
+.qno{font-family:var(--font-mono);color:var(--color-accent);font-size:14px;letter-spacing:.15em}
+.qtext{font-size:clamp(18px,4.8vw,24px);font-weight:700;line-height:1.6;margin:8px 0 28px;min-height:4.8em;text-align:center;display:flex;align-items:center;justify-content:center}
+#opts{display:grid;gap:12px;margin-bottom:24px}
+.opt{display:flex;align-items:center;gap:14px;width:100%;min-height:56px;padding:8px 18px;text-align:left;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);color:var(--color-text);font:inherit;cursor:pointer;transition:all .2s}
+.opt:hover,.opt:focus-visible{background:rgba(255,255,255,.1);border-color:var(--color-accent);outline:none}
+.opt.sel{border-color:var(--color-accent);background:rgba(100,255,218,.12);box-shadow:0 0 14px rgba(100,255,218,.2)}
+.opt kbd{font-family:var(--font-mono);color:var(--color-accent);font-size:18px}
+@media(min-width:760px){#opts{grid-template-columns:repeat(5,1fr);gap:10px}.opt{flex-direction:column;justify-content:center;text-align:center;min-height:92px;padding:8px;gap:6px;font-size:14px}}
+.al{display:flex;align-items:center;gap:14px;padding:8px 0;color:var(--mute);opacity:.25;font-family:var(--font-mono)}
+.al b{width:24px;text-align:center;font-size:20px;color:var(--color-accent);font-weight:400}
+.res-class{font-family:var(--font-mono);font-size:clamp(24px,6.4vw,36px);margin:4px 0;color:var(--color-accent);text-shadow:0 0 10px rgba(100,255,218,.3)}
+#r-class{font-weight:700}
+.row{margin:18px 0}
+.rh{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:700}
+.val{font-family:var(--font-mono)}
+.gauge{position:relative;height:10px;background:#2d3748;margin:8px 0 4px;overflow:hidden}
+.gauge::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;background:#000a}
+.fill{position:absolute;top:0;bottom:0;left:50%;width:0;box-shadow:0 0 10px currentColor}
+.thr{position:absolute;top:0;bottom:0;width:1px;background:#fff8}
+.flag{border-left:4px solid #ff4757;padding:10px 14px;margin:12px 0;background:rgba(255,71,87,.08)}
+.flag code{display:block;color:#ff4757;letter-spacing:.12em;font-size:14px;font-family:var(--font-mono)}
+.glitch{animation:gl .9s steps(2,end) 2}
+@keyframes gl{0%{transform:translateX(0)}30%{transform:translateX(-3px);opacity:.7}60%{transform:translateX(3px)}100%{transform:none}}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#0b1512;color:var(--color-accent);border:1px solid var(--color-accent);padding:8px 18px;font-family:var(--font-mono);font-size:14px;z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
+#toast.on{opacity:1}
+textarea{width:100%;min-height:120px;background:rgba(255,255,255,.03);color:var(--color-text);border:1px solid var(--line);padding:8px;font:inherit}
+.actions{margin:24px 0;display:flex;flex-wrap:wrap;gap:12px}
+.menu{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:30px 0 8px}
+.menu .btn{min-height:42px;padding:0 16px;font-size:14px;border-color:var(--line);color:var(--mute)}
+.menu .btn:hover,.menu .btn:focus-visible{border-color:var(--color-accent);color:var(--color-bg)}
+.noscan .scanline{display:none}
+.tbl{display:grid;grid-template-columns:auto auto 1fr;gap:4px 14px;font-size:14px;align-items:baseline}
+.tbl .m{font-family:var(--font-mono);color:var(--color-accent)}
+.tag{font-family:var(--font-mono);font-size:11px;border:1px solid var(--color-accent);color:var(--color-accent);padding:0 6px;margin-left:6px}
+.seg{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 18px}
+.seg .btn{min-height:40px;padding:0 16px;font-size:14px}
+.seg .btn.on{border-color:var(--color-accent);color:var(--color-accent);background:rgba(100,255,218,.12)}
+.hi{border-left:4px solid var(--color-dim);background:rgba(255,255,255,.03);padding:10px 14px;margin:10px 0;font-size:14px}
+.cr{font-family:var(--font-mono);line-height:2.2;margin:24px 0}.cr span{color:var(--mute);display:block;font-size:12px;letter-spacing:.15em;line-height:1.4;margin-top:10px}
+#b-back+#b-next{margin-left:8px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin:12px 0}
+.fc{border-left:4px solid var(--c);background:rgba(255,255,255,.03);padding:12px 16px}
+.fc b{color:var(--c);font-size:18px}.fc .t{font-family:var(--font-mono);font-size:13px;color:var(--mute);letter-spacing:.08em}
+.pr{list-style:none;padding:0}.pr li{padding:8px 0 8px 18px;border-bottom:1px solid #1a202c;position:relative}.pr li::before{content:"Ω";position:absolute;left:0;color:var(--color-accent);font-family:var(--font-mono);font-size:12px;top:11px}
+.fin{text-align:center;font-size:17px;margin:32px 0 8px}
+#s-world h2{margin-top:36px}
+.course{display:block;text-align:left;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.12);color:var(--color-text);padding:14px 16px;cursor:pointer;font:inherit;line-height:1.7;transition:all .2s}
+.course:hover,.course:focus-visible{border-color:var(--color-accent);background:rgba(100,255,218,.08);box-shadow:0 0 14px rgba(100,255,218,.2);outline:none}
+.course .m{font-family:var(--font-mono);color:var(--color-accent);font-size:18px}
+label{display:block;margin:12px 0;font-size:14px}
+input[type=checkbox]{margin-right:8px;accent-color:var(--color-accent)}
+#u-name{display:block;width:100%;max-width:360px;margin-top:4px;background:rgba(255,255,255,.03);color:var(--color-text);border:1px solid var(--line);padding:8px;font:inherit}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.cr a{color:var(--color-accent);text-decoration:none;border-bottom:1px dashed var(--color-accent)}
+.cr a:hover,.cr a:focus-visible{background:rgba(100,255,218,.12);outline:none}
+#thanks{font-size:15px;line-height:2}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="scanline" aria-hidden="true"></div>
+<div id="bg" aria-hidden="true"></div>
+
+<main class="container">
+<!-- タイトル -->
+<section class="screen" id="s-title">
+  <p class="note">Ω⁺ FIELD OBSERVATORY</p>
+  <h1>Ω FIELD<br><small style="font-size:.4em">Ω色場観測室</small></h1>
+  <div class="scanwrap"><div id="scan"></div></div>
+  <p class="cat">あなたの色は、観測されたのか。<br>それとも、そう推定されたにすぎないのか。</p>
+  <button class="btn" id="b-start">BEGIN OBSERVATION</button>
+  <nav class="menu" aria-label="メニュー">
+    <button class="btn" data-go="world">WORLD</button><button class="btn" data-go="db">DATABASE</button><button class="btn" data-go="stats">PUBLIC STATS</button><button class="btn" data-go="notice">NOTICE</button><button class="btn" data-go="credit">CREDIT</button><button class="btn" data-go="hist">HISTORY</button><button class="btn" data-go="opt">OPTION</button>
+  </nav>
+  <div class="box note" style="margin-top:36px">
+    <strong>色場診断について</strong><br>
+    本診断は、架空の理論体系「Ω色場／Ω⁺色場」に基づくエンターテインメントです。表示される色場値・信頼度・分類は、回答を独自のモデルへ変換した推定結果であり、実在する場や超常的能力を測定・証明するものではありません。性格・能力・健康状態を科学的に判定するものでもありません。<br>
+    この版では回答や結果をサーバーへ保存・送信しません。
+  </div>
+</section>
+
+<!-- イントロ -->
+<section class="screen" id="s-intro" hidden>
+  <h2>観測の前に</h2>
+  <div class="box">
+    <p>色場は物質として確認された存在ではなく、現象を説明するための仮説です。観測値も、回答から逆算された<strong>推定値</strong>にすぎません。</p>
+    <p>質問数は下のコースから選べます。問数が多いほど、回答のばらつきを確かめやすくなります。正解・不正解はありません。直感で答えてください。途中で戻って回答を変更できます。</p>
+    <p class="note">※ 強い色場が優秀さを、負の値が弱さを意味するわけではありません。</p>
+  </div>
+  <h2>Course</h2>
+  <div class="grid" id="courses"></div>
+</section>
+
+<!-- 質問 -->
+<section class="screen" id="s-q" hidden>
+  <div class="qno" id="qno"></div>
+  <div class="bar" role="progressbar" aria-label="進捗" aria-valuemin="0" aria-valuemax="24" id="pbar"><div id="prog"></div></div>
+  <div id="qbox">
+    <p class="qtext" id="qtext" aria-live="polite"></p>
+    <div id="opts" role="radiogroup" aria-label="回答"></div>
+  </div>
+  <button class="btn ghost" id="b-back">← 前へ戻る</button><button class="btn" id="b-next" hidden>次へ →</button>
+  <p class="note">キーボード：1〜5で回答、←で戻る</p>
+</section>
+
+<!-- 解析 -->
+<section class="screen" id="s-an" hidden>
+  <h2>観測値を逆算中</h2>
+  <div id="als"></div>
+  <p class="note" id="an-msg">回答パターンを色場モデルへ写像しています…</p>
+  <button class="btn ghost" id="b-skip">演出をスキップ</button>
+</section>
+
+<!-- 結果 -->
+<section class="screen" id="s-res" hidden>
+  <p class="note">推定結果 / ESTIMATED FIELD MODEL</p>
+  <div class="box">
+    <div class="note">主色場</div>
+    <div class="res-class" id="r-main"></div>
+    <div id="r-class" style="font-weight:600"></div>
+    <p class="note" id="r-note"></p>
+  </div>
+  <div id="r-flags"></div>
+  <h2>推定値（Ω⁺ 6色場）</h2>
+  <div id="r-rows"></div>
+  <p class="note">白線は発現閾値（|C| = <span id="thtxt">0.85</span> cf）。値と推定信頼度は別の指標です。信頼度は科学的な確率ではありません。</p>
+  <div class="actions">
+    <button class="btn btn-x" id="b-x">POST TO X</button>
+    <button class="btn btn-copy" id="b-copy">COPY RESULT</button>
+    <button class="btn ghost" id="b-retest">RETEST</button>
+  </div>
+  <textarea id="fallback" hidden aria-label="コピー用テキスト" readonly></textarea>
+  <div class="box" id="save-box">
+    <strong>オンライン保存・公開</strong>
+    <p class="note" id="fb-state"></p>
+    <label>ユーザー名（空欄なら「匿名」。本名や連絡先は入れないでください）<input id="u-name" maxlength="20" autocomplete="off"></label>
+    <label><input type="checkbox" id="c-save" checked>結果をオンラインに保存する</label>
+    <label><input type="checkbox" id="c-pub">結果を公開する（ユーザー名・主色場・推定値・信頼度・色類が全員に見えます）</label>
+    <label><input type="checkbox" id="c-stat">各質問の回答を、名前や結果と結びつけない件数の統計として提供する</label>
+    <button class="btn" id="b-save">SAVE ONLINE</button>
+  </div>
+  <div class="box note">
+    診断結果は、あなたの本質の宣告ではありません。回答から推定された一つのモデルです。<br>
+    X共有は投稿画面を開くだけで、自動投稿はしません。投稿文には回答内容や個人情報を含めません。
+  </div>
+</section>
+<section class="screen" id="s-world" hidden><h2>World</h2><p class="sub">Ω色場／Ω⁺色場 世界観（架空の設定です）</p><h2>色場とは</h2>
+<div class="box">「色」は物質として直接存在するものではない。色場の存在を仮定することで、世界の超常現象を説明できると考えられているだけである。<br>
+色場の観測値も、現象に対する影響から逆算された<b>推定値</b>であり、観測値が得られたからといって、その色場がその場所に確実に実在すると保証されるわけではない。</div>
+
+<h2>Ω色場（α・β・γ）</h2>
+<p>空間の各位置には、各色場が普遍的に存在すると仮定される。その値が極端に高い生物や場所を「彩度が高い」と呼ぶ。単位は <b>cf</b>、値域は −1.0〜+1.0。能力発現の目安は、絶対値が約0.8〜0.9 cfに達すること。</p>
+<div class="grid">
+<div class="fc" style="--c:#ff6b6b"><b>α 赤色場</b><div class="t">物体・存在</div>何が存在し、どのような物理的性質を持つか。</div>
+<div class="fc" style="--c:#5ee08a"><b>β 緑色場</b><div class="t">集合・記録</div>何が結びつき、組織・記録・集合を成すか。</div>
+<div class="fc" style="--c:#5aa9ff"><b>γ 青色場</b><div class="t">論理・計算</div>何が計算・処理・論理化されるか。</div>
+</div>
+
+<h2>拡張体系 Ω⁺（δ・ε・ζ）</h2>
+<p>既存のα・β・γを維持し、Ω⁺ではδ・ε・ζを追加する。<span class="note">（この企画で新規に採用する設定案）</span></p>
+<div class="grid">
+<div class="fc" style="--c:#b58cff"><b>δ 因果場</b><div class="t">因果・遷移・履歴</div>状態がどのように移行し、何が何に影響したか。時間そのものや未来予知とは同一ではない。</div>
+<div class="fc" style="--c:#ffb454"><b>ε 実現場</b><div class="t">可能性・選択・実現</div>複数の可能な状態のうち、どの状態が成立するか。無制限の願望実現を意味しない。</div>
+<div class="fc" style="--c:#e8e8f0"><b>ζ 定義場</b><div class="t">定義・境界・成立条件</div>対象を何として区別し、何を成立条件とするか。物理的境界だけでなく、定義上の境界も含む。</div>
+</div>
+
+<h2>色類</h2>
+<p>色場の組み合わせは「色類」として分類される。黒は空集合に相当する分類で、全色場の値が0であることとは同義ではない。</p>
+<div class="tbl" id="cc"></div>
+<p class="note">色名は世界観上の分類案・診断ラベルであり、組み合わせから必ずその能力が発現するという保証はありません。</p>
+
+<h2>この診断が大切にすること</h2>
+<ul class="pr">
+<li>診断結果は、あなたの本質を確定する宣告ではなく、回答から推定された色場モデルである。</li>
+<li>推定値と観測信頼度は別である。数値、信頼度、分類結果が食い違うことがある。</li>
+<li>値が0であることと、測定できないこと（欠損）は別である。</li>
+<li>高い値が優秀さを、負の値が弱さを意味するわけではない。負の値は、正とは異なる極性を示す。</li>
+<li>診断モデル自体が対象を説明できない結果（ζ異常）も、世界観の一部として扱う。</li>
+</ul>
+
+<p class="fin">「あなたの色場を測定した」のではない。<br>あなたの回答から、世界を説明するための一つのモデルを推定したのである。</p>
+<button class="btn ghost back">← MENU</button></section>
+<section class="screen" id="s-db" hidden><h2>Database</h2><p class="sub">色場・色類・特殊状態の資料（すべて架空の設定です）</p><div id="db-body"></div><button class="btn ghost back">← MENU</button></section>
+<section class="screen" id="s-stats" hidden><h2>Public Stats</h2><div id="st-body"></div><button class="btn ghost back">← MENU</button></section>
+<section class="screen" id="s-notice" hidden><h2>Notice</h2>
+<div class="box"><strong>色場診断について</strong><br>本診断は、架空の理論体系「Ω色場／Ω⁺色場」に基づくエンターテインメントです。表示される色場値・信頼度・分類は、回答内容を独自のモデルへ変換した推定結果であり、実在する場や超常的能力を測定・証明するものではありません。</div>
+<div class="box">診断結果は、性格・能力・健康状態などを科学的に判定するものではありません。自己理解や創作上の設定を楽しむための参考としてご利用ください。</div>
+<div class="box"><strong>データの扱い</strong><br>HISTORY と OPTION の内容は、お使いのブラウザ内（この端末）にだけ保存されます。Firebase に接続された環境では、結果画面で選んだ項目だけが、あなたが送信ボタンを押したときに送信されます。<br>・<b>結果の保存</b>：ユーザー名（空欄は「匿名」）、コース、主色場、推定値、信頼度、色類、各色場の値。「公開」を選んだ場合のみ他の人にも表示されます。公開の切替と削除は、保存した端末の HISTORY から行えます。<br>・<b>選択率の統計</b>：各質問の回答（5段階）を、ユーザー名や結果と結びつけず件数として加算します。回答数が10未満の質問は表示しません。<br>・本名・連絡先・位置情報などは収集しません。ユーザー名に個人が特定できる情報を入れないでください。<br>X共有は投稿画面を開くだけで、自動投稿はありません。</div><button class="btn ghost back">← MENU</button></section>
+<section class="screen" id="s-credit" hidden><h2>Credit</h2><div class="cr"><span>AUTHOR</span>Metalepsis_<span>PROBLEM STATEMENT PRODUCTION</span>Metalepsis_<span>PRODUCTION SUPPORT</span>Claude、ChatGPT<span>ORIGINAL WORK</span>Project_Narrative Season 1 Npec<span>ORIGINAL AUTHOR</span>Metalepsis_<span>ORIGINAL CONCEPT BY</span>Metalepsis_, Entity<span>SPECIAL THANKS</span><div id="thanks"></div></div><button class="btn ghost back">← MENU</button></section>
+<section class="screen" id="s-hist" hidden><h2>History</h2><div id="hi-body"></div><button class="btn ghost back">← MENU</button></section>
+<section class="screen" id="s-opt" hidden><h2>Option</h2><div id="op-body"></div><button class="btn ghost back">← MENU</button></section>
+</main>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* Firebase の設定。自前ホスティングで使うときは null を firebaseConfig に置き換える（手順は FIREBASE_SETUP.md）。
+   例: {apiKey:"...",authDomain:"...",projectId:"...",appId:"..."}  ※Web設定は秘密情報ではなく、守るのは firestore.rules */
+window.FIREBASE_CONFIG={
+  apiKey:"AIzaSyCT4xk_WjD41dWcHpzIKEzIZQ-tXj4-ays",
+  authDomain:"mtpscolor.firebaseapp.com",
+  projectId:"mtpscolor",
+  storageBucket:"mtpscolor.firebasestorage.app",
+  messagingSenderId:"175074901448",
+  appId:"1:175074901448:web:bb10a72c6787cbab8d94fd"
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<script>
+/* ===== JS（将来 questions.js / scoring.js / results.js / share.js / app.js へ分割可能） ===== */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const SYS_RM=matchMedia('(prefers-reduced-motion: reduce)').matches; let RM=SYS_RM;
+const HG=typeof gsap!=='undefined', HA=typeof anime!=='undefined';
+let TH=0.85; // 発現閾値（絶対値, cf）
+
+/* ---- questions.js ---- */
+const F=[
+ {k:'a',s:'α',n:'赤色場',t:'物体・存在',c:'#ff6b6b',th:'具体的な事実や物の性質への着目'},
+ {k:'b',s:'β',n:'緑色場',t:'集合・記録',c:'#5ee08a',th:'関係やつながりへの着目'},
+ {k:'g',s:'γ',n:'青色場',t:'論理・計算',c:'#5aa9ff',th:'筋道・手順・論理への着目'},
+ {k:'d',s:'δ',n:'因果場',t:'因果・遷移・履歴',c:'#b58cff',th:'経緯や因果への着目'},
+ {k:'e',s:'ε',n:'実現場',t:'可能性・選択・実現',c:'#ffb454',th:'選択して実現させることへの志向'},
+ {k:'z',s:'ζ',n:'定義場',t:'定義・境界・成立条件',c:'#e8e8f0',th:'定義や境界の成立条件への着目'}
+];
+// [質問文, 重み, 逆転採点]
+const Q24=[
+ ["仕組みが複雑でも、まずは目の前にある具体的な事実から考えたい。",{a:1}],
+ ["物事を理解するとき、個々の要素よりも、それらのつながりが気になる。",{b:1}],
+ ["感覚的な説明より、筋道の通った説明の方が納得しやすい。",{g:1}],
+ ["何かが起きたとき、現在の状態より「どうしてこうなったか」を追いたくなる。",{d:1}],
+ ["複数の選択肢があるとき、どれを現実の結果にするか自分で決めたい。",{e:1}],
+ ["物事を判断する前に、その言葉や分類の定義自体を疑うことがある。",{z:1}],
+ ["目に見えない理屈より、実際に起きた現象を重視する。",{a:1}],
+ ["集団の中で、誰と誰がどう関係しているかを自然に把握する。",{b:1}],
+ ["問題を小さな手順に分解すると、解決の糸口が見えやすい。",{g:1}],
+ ["過去の出来事は、形を変えて現在にも影響を残すと思う。",{d:1}],
+ ["可能性を考えるだけでなく、実際に結果へ結びつけることに価値を感じる。",{e:1}],
+ ["境界線やルールは、何を区別するために存在するのかを考えたくなる。",{z:1}],
+ ["具体的な道具や物体の性質を観察すると、違いに気づきやすい。",{a:1}],
+ ["記録や情報は、単独の内容よりも、他の情報と結びついたときに意味が増すと思う。",{b:1}],
+ ["感情的に納得できても、論理が通らなければ一度立ち止まる。",{g:1}],
+ ["同じ出来事でも、そこに至る経緯が違えば意味も変わると思う。",{d:1}],
+ ["成功する確率が低くても、条件を整えて実現を目指すことがある。",{e:1}],
+ ["「これは絶対にこういうものだ」という説明に、例外がないか確かめたくなる。",{z:1}],
+ ["目に見える変化がないなら、変化が起きたと判断するのは難しい。",{a:1}],
+ ["集団の空気よりも、個々人の事情を優先して考えることが多い。",{b:1},1],
+ ["結果が同じなら、そこに至る手順はあまり重要ではない。",{d:1},1],
+ ["選択肢を残しておくより、早めに一つへ決める方が落ち着く。",{e:1}],
+ ["物事の名前が変わっても、実態が同じなら同じものだと考える。",{z:1},1],
+ ["自分の考えが間違っている可能性を残しておくことは大切だと思う。",{g:.5,z:.5}]
+];
+const OPTS=[["強く当てはまる",2],["やや当てはまる",1],["どちらともいえない",0],["あまり当てはまらない",-1],["まったく当てはまらない",-2]];
+
+// ---- 追加コース用の質問バンク（各色場12問 × 6色場 = 72問）----
+// 各色場とも12問のうち4問が逆転項目（反対極の主張）。出題順は6色場を1問ずつ巡回する。
+// 48問コース＝各色場の先頭8問（逆転2問を含む）／72問コース＝全12問。
+// 方針: 大多数が同じ答えを選ぶ設問（社会的望ましさが強いもの）を避け、傾向やトレードオフを問う文にしている。
+const FK=['a','b','g','d','e','z'];
+const QB={
+ a:["新しい道具を手に入れたら、説明書を読む前にまず触って確かめたくなる。",
+    "同じ料理でも、食材の質や状態の違いがすぐ気になる。",
+    "物の実際の手触りや状態より、それが何を意味するかの方が気になる。",
+    "議論になったとき、実際に起きた具体例を挙げて考えることが多い。",
+    "壊れた物は、原因を考える前にまず状態をよく観察する。",
+    "実物を見るより、概念図や言葉での説明の方が理解しやすい。",
+    "部屋の中の物の配置や、素材の違いに敏感な方だと思う。",
+    "「測れるもの」「見えるもの」を基準にした方が判断を誤りにくい。",
+    "目に見える証拠がなくても、筋が通っていれば十分に納得できる。",
+    "長い説明を聞くより、写真や現物を見た方が状況を早くつかめる。",
+    "物の重さ・大きさ・硬さなど、数値になる性質に興味を持ちやすい。",
+    "手元にある物の性質より、それが置かれた状況や意味の方に関心が向く。"],
+ b:["初対面の人が集まる場では、誰と誰が知り合いかを自然に把握している。",
+    "集団の事情を見るより、一人ひとりの個別の状況を見た方が正確に理解できる。",
+    "情報は一覧表にするより、人物や出来事の相関図にした方が整理しやすい。",
+    "チームの成果は、個人の能力の合計以上になると感じることが多い。",
+    "記録や履歴（ログ・メモ・写真）を残しておかないと落ち着かない。",
+    "所属や関係性といった枠組みは、物事の理解にはあまり役立たないと思う。",
+    "物事の背景にある人間関係や組織の構造を知りたくなる。",
+    "分類や索引を作って、情報同士の位置づけを整えるのが好きだ。",
+    "多くの人の意見の傾向を知ると、自分の考えの位置が確かめられる。",
+    "全体の傾向より、例外的な一つの事例の方が重要なことが多い。",
+    "人と人のつながりは、個人の内面に比べれば二次的なものだと思う。",
+    "身の回りの出来事を、周囲の人の反応と合わせて捉える癖がある。"],
+ g:["複雑な問題は、小さな手順に分けてから取りかかる。",
+    "説明に飛躍があると、結論が正しそうでも引っかかってしまう。",
+    "ルールや条件を書き出して整理すると、考えがまとまる。",
+    "手順を決めておくより、状況を見ながらその場で調整する方が上手くいく。",
+    "議論では、筋の通り方より、その場の納得感の方が大切だと思う。",
+    "同じ作業を繰り返すなら、自動化できないかつい考えてしまう。",
+    "「もし〜ならば」と条件分岐を意識して考えることが多い。",
+    "数式や計算で説明されると、安心感を覚える。",
+    "論理的に正しくても、直感が違うと言うなら直感を優先する。",
+    "矛盾を見つけると、そのままにせず原因を突き止めたくなる。",
+    "複数の案は、評価基準を決めて比べた方が選びやすい。",
+    "考えるときは、順序立てるより全体を一度に眺める方が得意だ。"],
+ d:["起きたことの経緯より、いまどうなっているかの方が重要だと思う。",
+    "今の状況を見るとき、そこに至るまでの経路をつい遡って考える。",
+    "小さな出来事が、後の大きな結果につながると感じることが多い。",
+    "物事は「いつ・どの順で」起きたかによって意味が変わると思う。",
+    "過去の出来事の影響は、形を変えて長く続くと思う。",
+    "同じ結果でも、そこに至った過程が違えば別のものとして扱いたい。",
+    "過去は切り離して、今の状態だけで判断する方が合理的だ。",
+    "変化の途中の段階にも、結果と同じくらい興味がある。",
+    "出来事の「きっかけ」を特定できると、気持ちが落ち着く。",
+    "原因を探るより、これからどうするかだけを考えることの方が多い。",
+    "同じ結果なら、そこに至る順序や経緯はあまり気にならない。",
+    "年表のように、出来事が連なって見えるものに惹かれる。"],
+ e:["選択肢を検討するだけで終わらせず、実際に一つ選んで動かしたい。",
+    "迷ったときは、期限を決めて一つに絞るようにしている。",
+    "可能性を考えている時間の方が、実際に選んで実行する時間より好きだ。",
+    "一度決めたことは、状況が少し変わっても実現させようとする。",
+    "「できるかもしれない」で止まらず、条件を整えて試す方だ。",
+    "二つの道があるとき、選ばなかった方を切り捨てることへの抵抗は少ない。",
+    "計画は完璧に練るより、不完全でも動かして直す方が好きだ。",
+    "決断を先延ばしにして、選択肢を広く保っておく方が安心できる。",
+    "結果が確定するより、まだ何にでもなれる状態の方が好きだ。",
+    "複数の選択肢の中から、結果を引き受ける覚悟で自分が選びたい。",
+    "偶然に任せるより、自分で状況を選び取りたい。",
+    "一度決めると他の可能性が失われるのが惜しくて、決めきれないことが多い。"],
+ z:["議論の前に、言葉の意味をそろえておかないと話が進まないと感じる。",
+    "言葉の定義を厳密にするより、やり取りの中で意味が通じれば十分だ。",
+    "「それは○○に含まれるのか」という線引きが気になる。",
+    "ルールの例外を見つけると、そのルールの適用範囲を考え直したくなる。",
+    "分類や区分は便宜的なものなので、あまり重視しなくてよい。",
+    "同じ名前で呼ばれていても、中身が違えば別物として扱いたい。",
+    "「そもそも何をもって〜と言えるのか」と考えることが多い。",
+    "物事の境界が曖昧なままだと、落ち着かない。",
+    "名前や肩書きが変わると、実態が同じでも別の存在になる場面があると思う。",
+    "細かい用語の違いにこだわるのは、時間の無駄になりやすい。",
+    "定義が曖昧なまま話を進めることに、あまり抵抗はない。",
+    "ある物が成立するための条件を、順に確認していくのが好きだ。"]
+};
+const QR={a:[2,5,8,11],b:[1,5,9,10],g:[3,4,8,11],d:[0,6,9,10],e:[2,7,8,11],z:[1,4,9,10]}; // 逆転項目の位置
+function buildBank(n){const o=[];for(let k=0;k<n;k++)FK.forEach(f=>o.push([QB[f][k],{[f]:1},QR[f].includes(k)?1:0,f+String(k+1).padStart(2,'0')]));return o;}
+const COURSES={
+ 24:{name:'STANDARD',min:'約3分',desc:'まずは気軽に。各色場4問。',build:()=>Q24},
+ 48:{name:'DETAIL',min:'約7分',desc:'推定の安定性を高めたい人向け。各色場8問。',build:()=>buildBank(8)},
+ 72:{name:'STRICT',min:'約10分',desc:'最も厳密なコース。各色場12問。',build:()=>buildBank(12)}
+};
+Q24.forEach((q,i)=>q[3]='s'+String(i+1).padStart(2,'0')); // 質問ID（統計の集計キー）
+let Q=Q24; // 現在のコースの質問（start() で差し替え）
+
+/* ---- scoring.js ---- */
+function calc(ans){
+  const r={};
+  F.forEach(f=>{
+    let raw=0,max=0,items=[];
+    Q.forEach((q,i)=>{const w=q[1][f.k]; if(!w)return; const p=q[2]?-1:1;
+      raw+=ans[i]*w*p; max+=Math.abs(w)*2; items.push(ans[i]*p/2);});
+    const v=max?Math.max(-1,Math.min(1,raw/max)):0;
+    let c=5;
+    if(items.length>1){
+      const m=items.reduce((x,y)=>x+y,0)/items.length;
+      const sd=Math.sqrt(items.reduce((x,y)=>x+(y-m)**2,0)/items.length);
+      const z=items.filter(x=>x===0).length/items.length;
+      c=Math.max(5,Math.round(100*(1-sd)*(1-.5*z)));
+    }
+    r[f.k]={v,c};
+  });
+  const abs=F.map(f=>[f,Math.abs(r[f.k].v)]).sort((x,y)=>y[1]-x[1]);
+  const primary=abs[0][0];
+  const conf=Math.round(F.reduce((s,f)=>s+r[f.k].c,0)/F.length);
+  // 色類
+  const act=F.filter(f=>Math.abs(r[f.k].v)>=.5).map(f=>f.k).join('');
+  const CL={a:'赤',b:'緑',g:'青',d:'灰',e:'実現（単独色名なし）',z:'無彩',ab:'黄',bg:'水',ag:'桃',abg:'白',ad:'橙',bd:'銀',gd:'紫',abd:'金',bgd:'藍',ae:'琥珀',be:'翡翠',ge:'電青',dz:'虚紫',abgz:'象牙'};
+  const sym=act.split('').map(k=>F.find(f=>f.k===k).s).join('');
+  const cls=CL[act]?`${CL[act]}〈${sym}〉`:(act?`複合（${sym}）— 既存の色類に該当なし`:'未分化 — 顕著な色類なし');
+  // 特殊判定
+  const flags=[];
+  const zeroShare=ans.filter(x=>x===0).length/ans.length;
+  if(zeroShare>=.7) flags.push(['FIELD MISSING','欠損色場','「どちらともいえない」が大半を占めました。数値が0なのではなく、モデルを適用するための情報が不足している可能性があります。']);
+  if(Math.abs(r.z.v)>=TH||(Math.abs(r.z.v)>=.6&&r.z.c<40)) flags.push(['ONTOLOGY ERROR','ζ異常 — 分類モデル不適合','既存の分類では回答パターンを一意に記述できなかった可能性があります。「すべての色場が強い」という意味ではありません。推奨処理：再観測。']);
+  if(F.filter(f=>Math.abs(r[f.k].v)>=.7).length>=4) flags.push(['MULTI-FIELD OVERLAP','虹色場','複数の原理が同時に強く関与し、分離が困難な状態です。']);
+  const inv=F.filter(f=>r[f.k].v<=-.7);
+  if(inv.length) flags.push(['POLARITY INVERSION','反転色場',`${inv.map(f=>f.s).join('・')} が強い負極性を示しました。弱さではなく、正の値とは逆方向の極性です。`]);
+  return {r,primary,conf,cls,flags};
+}
+
+/* ---- results.js（結果文テンプレート集） ---- */
+// 方針: 正負は善悪・優劣を示さない。値は「推定」であり断定しない。
+// 区分: posStrong(+0.6以上) / posMild(+0.2〜+0.6) / neutral(±0.2未満) / negMild(-0.2〜-0.6) / negStrong(-0.6以下)
+const RESULT_TEMPLATES={
+  hashtags:'#Mtps思想診断 #Mtps色場診断',
+  field:{
+    a:{posStrong:'目の前の具体的な事実や、物の性質・変化を手掛かりに考える傾向が強く現れました。観察できるものを土台に判断する姿勢です。',
+       posMild:'具体的な事実や実際に起きた現象に目を向ける傾向が、ある程度現れました。',
+       neutral:'物体や具体的な性質への着目は、一貫して強くは現れませんでした。場面によって見方が変わるようです。',
+       negMild:'具体的な事実よりも、抽象的な理屈や見えない要素を重視する方向の回答がやや多く見られました。',
+       negStrong:'目に見える現象や物の性質より、仕組みや概念を優先して捉える方向の回答が強く現れました。弱さではなく、正の値とは逆の極性です。'},
+    b:{posStrong:'個々の要素より、それらの結びつきや、集団・記録の構造に目が向く傾向が強く現れました。',
+       posMild:'関係やつながりを意識して物事を捉える傾向が、ある程度現れました。',
+       neutral:'集合や関係性への着目は、一貫して強くは現れませんでした。',
+       negMild:'つながりより、個々の事情や単体の内容を重視する方向の回答がやや多く見られました。',
+       negStrong:'集団や関係の構造よりも、個々の要素や個人の事情を優先して捉える方向の回答が強く現れました。孤立や弱さを意味するものではありません。'},
+    g:{posStrong:'筋道・手順・論理を重んじ、納得できる説明を求める傾向が強く現れました。',
+       posMild:'論理的な整合性や、問題を分解して考えることを意識する傾向がある程度現れました。',
+       neutral:'論理や手順への着目は、一貫して強くは現れませんでした。',
+       negMild:'筋道よりも、感覚や直感を頼りにする方向の回答がやや多く見られました。',
+       negStrong:'論理的な手順より、感覚・直感・その場の納得を優先する方向の回答が強く現れました。非論理という意味ではありません。'},
+    d:{posStrong:'「どうしてそうなったか」という経緯や、過去が現在に残す影響を追う傾向が強く現れました。',
+       posMild:'因果や経緯を気にして物事を捉える傾向が、ある程度現れました。',
+       neutral:'因果や履歴への着目は、一貫して強くは現れませんでした。',
+       negMild:'経緯よりも、現在の状態や結果そのものを重視する方向の回答がやや多く見られました。',
+       negStrong:'過去の経路より、いまの状態や結果を優先して捉える方向の回答が強く現れました。履歴を軽視するという意味ではありません。'},
+    e:{posStrong:'複数の可能性の中から選び取り、実際の結果として成立させることへの志向が強く現れました。',
+       posMild:'選択して実現に結びつけることへの志向が、ある程度現れました。',
+       neutral:'選択や実現への志向は、一貫して強くは現れませんでした。',
+       negMild:'結果を確定させるより、選択肢や可能性を残しておく方向の回答がやや多く見られました。',
+       negStrong:'選び取って実現させることへの志向は控えめで、可能性を開いたまま保つ方向の回答が強く現れました。決断力の有無とは無関係です。'},
+    z:{posStrong:'言葉や分類の定義、境界が成立する条件そのものを問い直す傾向が強く現れました。',
+       posMild:'定義や区別の前提を意識して物事を捉える傾向が、ある程度現れました。',
+       neutral:'定義や境界への着目は、一貫して強くは現れませんでした。',
+       negMild:'定義や分類より、実態や中身を重視して捉える方向の回答がやや多く見られました。',
+       negStrong:'名称や境界の定義よりも、実態を優先して同一視する方向の回答が強く現れました。'}
+  },
+  confidence:{low:'ただし推定の信頼度は低く、断定できません。',mid:'推定の信頼度は中程度です。',high:'回答は比較的一貫していました。'},
+  threshold:th=>`世界観上の発現閾値（|C| ≥ ${th.toFixed(2)} cf）に達した推定値です。`,
+  // 特殊状態: [表示コード, 名称, 本文]
+  flags:{
+    'RESONANCE DETECTED':['共鳴色場','複数の色場の相互作用が強く現れた可能性があります。'],
+    'RESIDUAL TRACE':['残響色場','過去の影響が現在も残っているという仮説に合致するパターンです。'],
+    'PSEUDO-FIELD':['擬似色場','複数の影響が合成され、別の色場のように観測された可能性があります。'],
+    'FIELD MISSING':['欠損色場','「どちらともいえない」が大半を占めました。数値が0なのではなく、モデルを適用するための情報が不足している可能性があります。'],
+    'POLARITY INVERSION':['反転色場','強い負極性を示した色場があります。弱さではなく、正の値とは逆方向の極性です。'],
+    'UNRESOLVED TRANSITION':['未確定・灰色場','遷移先が一意に定まらない状態です。推奨処理：再観測。'],
+    'ADAPTIVE COHERENCE':['翠色場','適応・自己修復など、複数の色場が協調している状態です。'],
+    'MULTI-FIELD OVERLAP':['虹色場','複数の原理が同時に強く関与し、分離が困難な状態です。'],
+    'ONTOLOGY ERROR':['ζ異常 — 分類モデル不適合','既存の分類では回答パターンを一意に記述できなかった可能性があります。「すべての色場が強い」という意味ではありません。推奨処理：再観測。']
+  }
+};
+const fmt=v=>(v>0?'+':v<0?'−':'±')+Math.abs(v).toFixed(2);
+// 1色場ぶんの説明文を組み立てる。f: F の要素, x: {v, c}, TH: 発現閾値
+function fieldNote(f,x,TH=0.85){
+  const T=RESULT_TEMPLATES, a=Math.abs(x.v);
+  const tier=a<.2?'neutral':(x.v>0?(a>=.6?'posStrong':'posMild'):(a>=.6?'negStrong':'negMild'));
+  let s=T.field[f.k][tier];
+  if(a>=TH) s+=' '+T.threshold(TH);
+  s+=' '+(x.c<40?T.confidence.low:x.c>=70?T.confidence.high:T.confidence.mid);
+  return s;
+}
+const flagT=f=>f[0]==="POLARITY INVERSION"?[f[1],f[2]]:(RESULT_TEMPLATES.flags[f[0]]||[f[1],f[2]]);
+
+/* ---- share.js ---- */
+let RES=null;
+function shareText(){
+  const f=RES.primary,x=RES.r[f.k];
+  return ["Ω⁺色場診断の結果：",`主色場：${f.s}／${f.n}`,`推定値：${fmt(x.v)} cf`,`コース：${RES.n}問`,`観測信頼度：${RES.conf}%`,`色類：${RES.cls.split('—')[0].trim()}`,"",RESULT_TEMPLATES.hashtags].join("\n");
+}
+function shareToX(){
+  const u=new URL("https://twitter.com/intent/tweet");
+  u.searchParams.set("text",shareText());
+  u.searchParams.set("url",location.href.split('#')[0]);
+  window.open(u.toString(),"_blank","noopener,noreferrer");
+}
+async function copyText(t){
+  try{await navigator.clipboard.writeText(t);toast('コピーしました');}
+  catch(e){const ta=$('#fallback');ta.hidden=false;ta.value=t;ta.focus();ta.select();toast('下の欄から手動でコピーしてください');}
+}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.id);toast.id=setTimeout(()=>t.classList.remove('on'),2200);}
+
+/* ---- app.js ---- */
+let cur=0, ans=[], lock=false;
+const dur=d=>RM?0:d;
+function tween(to,d,fn,done){
+  if(HG&&!RM){const o={t:0};gsap.to(o,{t:1,duration:d,ease:'power2.out',onUpdate:()=>fn(o.t*to),onComplete:done});}
+  else{fn(to);done&&done();}
+}
+function show(id){
+  $$('.screen').forEach(s=>s.hidden=s.id!==id);
+  const el=$('#'+id); scrollTo(0,0);
+  if(HG&&!RM) gsap.fromTo(el,{opacity:0,y:14},{opacity:1,y:0,duration:.5,ease:'power2.out'});
+}
+function renderQ(){
+  $('#qno').textContent=`Q${String(cur+1).padStart(2,'0')} / ${Q.length}`;
+  $('#prog').style.width=(cur/Q.length*100)+'%';
+  $('#pbar').setAttribute('aria-valuenow',cur);$('#pbar').setAttribute('aria-valuemax',Q.length);
+  $('#qtext').textContent=Q[cur][0];
+  const box=$('#opts'); box.innerHTML='';
+  OPTS.forEach(([lb,val],i)=>{
+    const b=document.createElement('button');
+    b.className='opt'+(ans[cur]===val?' sel':''); b.type='button';
+    b.setAttribute('role','radio'); b.setAttribute('aria-checked',ans[cur]===val);
+    b.innerHTML=`<kbd>${i+1}</kbd>${lb}`;
+    b.onclick=()=>pick(val);
+    box.appendChild(b);
+  });
+  $('#b-back').style.visibility=cur?'visible':'hidden';
+  updNext();
+  if(HG&&!RM) gsap.fromTo('#qbox',{opacity:0,x:24},{opacity:1,x:0,duration:.3,ease:'power2.out'});
+}
+function pick(val){
+  if(lock)return; lock=true; ans[cur]=val;
+  $$('.opt').forEach((b,i)=>{const on=OPTS[i][1]===val;b.classList.toggle('sel',on);b.setAttribute('aria-checked',on);});
+  if(O.auto==='off'){lock=false;updNext();return;}
+  setTimeout(()=>{lock=false;adv();},RM?0:260);
+}
+let tl=null;
+function analyze(){
+  $('#prog').style.width='100%';
+  RES=calc(ans); RES.n=Q.length; // 計算は即時に完了。以下は演出のみ
+  show('s-an');
+  const steps=['α 回答を重み付きスコアへ変換','β 色場ごとに正規化','γ 推定値を算出','δ 回答の一貫性から信頼度を算出','ε 色類・特殊判定を照合','ζ 結果を整理'];
+  $('#als').innerHTML=steps.map(s=>`<div class="al"><b>${s[0]}</b><span>${s.slice(2)}</span></div>`).join('');
+  if(HG&&!RM){
+    tl=gsap.timeline({onComplete:showResult});
+    $$('.al').forEach((el,i)=>tl.to(el,{opacity:1,color:'#e8ecf6',x:6,duration:.25},i*.3));
+    tl.to({}, {duration:.4});
+  } else { $$('.al').forEach(e=>e.style.opacity=1); setTimeout(showResult,RM?200:1200); }
+}
+let shown=false;
+function showResult(){
+  if(shown)return; shown=true; if(tl){tl.kill();tl=null;} saveHist(); initSaveBox();
+  const R=RES, p=R.primary, px=R.r[p.k];
+  $('#r-main').textContent=`${p.s}／${p.n}  ${fmt(px.v)} cf`;
+  $('#r-class').textContent='色類：'+R.cls;
+  $('#r-note').textContent=`${R.n}問コース／推定信頼度（全体）：${R.conf}%。`+(Math.abs(px.v)>=TH?'発現域に達している可能性があります。':'発現閾値には達していません。')+(R.conf<40?' ただし推定の信頼度は低く、断定はできません。':'');
+  $('#r-flags').innerHTML=R.flags.map(f=>`<div class="flag"><code>${f[0]}</code><strong>${flagT(f)[0]}</strong><br><span class="note">${flagT(f)[1]}</span></div>`).join('');
+  $('#r-rows').innerHTML=F.map(f=>{
+    const x=R.r[f.k];
+    return `<div class="row" data-k="${f.k}">
+      <div class="rh"><span style="color:${f.c}">${f.s} ${f.n}<span class="note"> ${f.t}</span></span><span class="val">0.00 cf</span></div>
+      <div class="gauge" role="img" aria-label="${f.n} ${fmt(x.v)} cf、${x.v>0?'正':x.v<0?'負':'中立'}極性、信頼度${x.c}%"><div class="fill" style="background:${f.c}"></div><span class="thr" style="left:${50+TH*50}%"></span><span class="thr" style="left:${50-TH*50}%"></span></div>
+      <div class="note">信頼度 ${x.c}% ｜ ${fieldNote(f,x,TH)}</div></div>`;}).join('');
+  show('s-res');
+  F.forEach((f,i)=>{
+    const x=R.r[f.k], row=$(`.row[data-k="${f.k}"]`), fill=row.querySelector('.fill'), val=row.querySelector('.val');
+    const setv=t=>{
+      const w=Math.abs(t)*50; fill.style.width=w+'%'; fill.style.left=(t>=0?50:50-w)+'%'; val.textContent=fmt(t)+' cf';
+    };
+    setTimeout(()=>tween(x.v,1.1,setv),RM?0:i*120);
+  });
+  // 特殊判定: 局所的グリッチ（画面全体は揺らさない）
+  if(R.flags.some(f=>f[0]==='ONTOLOGY ERROR')&&!RM){
+    const m=$('#r-class'); m.classList.add('glitch');
+    const keep=m.textContent; m.textContent='UNCLASSIFIED';
+    setTimeout(()=>m.textContent=keep,700);
+  }
+}
+function start(n){Q=COURSES[n].build();cur=0;ans=[];shown=false;lock=false;show('s-q');renderQ();}
+
+/* ---- menu.js：保存・各メニュー ---- */
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let O=Object.assign({anim:'auto',th:'0.85',auto:'on',scan:'on'},ls.get('omega_opts',{}));
+function applyOpts(){RM=SYS_RM||O.anim==='off';TH=[.8,.85,.9].includes(+O.th)?+O.th:.85;document.body.classList.toggle('noscan',O.scan==='off');const t=$('#thtxt');if(t)t.textContent=TH.toFixed(2);}
+applyOpts();
+function adv(){if(cur<Q.length-1){cur++;renderQ();}else analyze();}
+function updNext(){const b=$('#b-next');b.hidden=O.auto!=='off';b.disabled=ans[cur]===undefined;b.textContent=cur<Q.length-1?'次へ →':'解析へ →';}
+function saveHist(){
+  const R=RES,p=R.primary,H=ls.get('omega_hist',[]);
+  const f={};F.forEach(x=>f[x.k]=+R.r[x.k].v.toFixed(2));
+  H.unshift({t:Date.now(),n:R.n,pk:p.k,v:f[p.k],conf:R.conf,cls:R.cls,f,fl:R.flags.map(x=>x[0])});
+  ls.set('omega_hist',H.slice(0,30));
+}
+const FD={a:'何が存在し、どのような物理的性質を持つか',b:'何が結びつき、組織・記録・集合を成すか',g:'何が計算・処理・論理化されるか',d:'状態がどのように移行し、何が何に影響したか',e:'複数の可能な状態のうち、どの状態が成立するか',z:'対象を何として区別し、何を成立条件とするか'};
+const CC=[['白','αβγ','生物、自由意思、混沌'],['赤','α','物体、物理的性質、存在'],['黄','αβ','遺伝子、細胞、代謝'],['緑','β','集合、組織、記録'],['水','βγ','統計、集合意識、感情'],['青','γ','アルゴリズム、計算、論理'],['桃','αγ','力、熱、自然現象'],['黒','空集合','無、制御、秩序'],['橙','αδ','変質、変換、物理的な状態変化'],['銀','βδ','記憶、履歴、継続'],['紫','γδ','分岐、可能性の計算、予測'],['金','αβδ','継承、系譜、同一性'],['藍','βγδ','集合予測、歴史的傾向'],['灰','δ','未確定、保留、遷移先の未決定'],['琥珀','αε','実体化、可能性の物理的実現'],['翡翠','βε','集合的な選択・結果の実現'],['電青','γε','計算結果の実行・確定'],['虚紫','δζ','因果の区切り・事象境界'],['象牙','αβγζ','複数の記述を一つの対象として扱う条件'],['無彩','ζ','分類不能・定義の前提への異常']];
+const SP=[['RESONANCE DETECTED','共鳴色場','複数色場の相互作用が強い'],['RESIDUAL TRACE','残響色場','過去の影響が現在も残るという仮説'],['PSEUDO-FIELD','擬似色場','複数の影響が合成され、別の色場のように観測される'],['FIELD MISSING','欠損色場','数値が0なのではなく、モデルが適用できない'],['POLARITY INVERSION','反転色場','極性が逆方向'],['UNRESOLVED TRANSITION','未確定・灰色場','遷移先が一意に定まらない状態'],['ADAPTIVE COHERENCE','翠色場','適応・自己修復などの複数色場の協調状態'],['MULTI-FIELD OVERLAP','虹色場','複数の原理が同時に強く関与し、分離が困難'],['ONTOLOGY ERROR','分類不能／ζ異常','既存分類の前提が適用できない可能性']];
+const IMPL=['FIELD MISSING','POLARITY INVERSION','MULTI-FIELD OVERLAP','ONTOLOGY ERROR'];
+function renderDB(){
+  $('#db-body').innerHTML=`<h3 class="m" style="color:var(--color-accent)">Ω⁺ 6色場（単位 cf、値域 −1.0〜+1.0）</h3>`+F.map(f=>`<div class="hi" style="border-color:${f.c}"><b style="color:${f.c}">${f.s} ${f.n}</b>　${f.t}<br><span class="note">${FD[f.k]}</span></div>`).join('')+
+  `<p class="note">δ・ε・ζはこの企画で新規に採用する設定案です。色場は物質ではなく、現象を説明するための仮説です。</p><h3 style="color:var(--color-accent)">色類</h3><div class="tbl">`+CC.map(c=>`<b>${c[0]}</b><span class="m">${c[1]}</span><span>${c[2]}</span>`).join('')+
+  `</div><p class="note">色名は診断ラベルであり、組み合わせから能力が発現する保証はありません。</p><h3 style="color:var(--color-accent)">特殊状態</h3>`+SP.map(x=>`<div class="hi"><code class="m">${x[0]}</code>${IMPL.includes(x[0])?'<span class="tag">判定中</span>':''}<br><b>${x[1]}</b>：<span class="note">${x[2]}</span></div>`).join('');
+}
+function bar(v,c){const w=Math.abs(v)*50;return `<div class="gauge"><div class="fill" style="background:${c};width:${w}%;left:${v>=0?50:50-w}%"></div></div>`;}
+function renderStats(){
+  const H=ls.get('omega_hist',[]);
+  const ON=window.FB&&FB.enabled;
+  let h=ON?'<div class="box"><strong>オンライン統計</strong><br>統計への提供に同意した参加者の匿名データから集計しています。回答数が10未満の質問は表示しません。</div><div id="st-online-slot"></div><h3 style="color:var(--color-accent)">この端末の個人用集計</h3>':'<div class="box"><strong>公開統計は未接続です。</strong><br>この環境では Firebase に接続されていません（設定方法は FIREBASE_SETUP.md）。以下は、<b>この端末に保存された履歴だけ</b>から計算した個人用の集計です。</div>';
+  if(!H.length) h+='<p class="note">履歴がまだありません。診断すると、ここに集計が表示されます。</p>';
+  else{
+    h+=`<p>診断回数：<b class="m">${H.length}</b>　平均信頼度：<b class="m">${Math.round(H.reduce((s,x)=>s+x.conf,0)/H.length)}%</b></p><h3 style="color:var(--color-accent)">色場の平均値</h3>`;
+    F.forEach(f=>{const m=H.reduce((s,x)=>s+(x.f[f.k]||0),0)/H.length;h+=`<div class="row"><div class="rh"><span style="color:${f.c}">${f.s} ${f.n}</span><span class="val">${fmt(m)} cf</span></div>${bar(m,f.c)}</div>`;});
+    h+='<h3 style="color:var(--color-accent)">主色場の回数</h3>'+F.map(f=>[f,H.filter(x=>x.pk===f.k).length]).filter(x=>x[1]).sort((a,b)=>b[1]-a[1]).map(([f,n])=>`<div class="hi" style="border-color:${f.c}">${f.s}／${f.n} ×${n}</div>`).join('');
+  }
+  $('#st-body').innerHTML=h;
+  if(ON)renderOnline();
+}
+let clr=false;
+function renderHist(){
+  const H=ls.get('omega_hist',[]);clr=false;
+  let h=`<p class="note">診断結果はこの端末のブラウザ内にだけ保存されます（最新30件）。回答内容は保存しません。</p>`;
+  if(!H.length)h+='<p>履歴はまだありません。</p>';
+  else{
+    h+=H.map(x=>{const f=F.find(y=>y.k===x.pk);return `<div class="hi" style="border-color:${f.c}"><span class="note">${esc(new Date(x.t).toLocaleString('ja-JP'))}</span><br><b style="color:${f.c}">${f.s}／${f.n}</b>　<span class="val">${fmt(x.v)} cf</span>　信頼度 ${x.conf}%　${x.n||24}問<br>色類：${esc(x.cls)}<br><span class="note">${F.map(y=>y.s+' '+fmt(x.f[y.k]||0)).join('　')}</span>${x.fl&&x.fl.length?`<br><code class="m">${esc(x.fl.join(' / '))}</code>`:''}</div>`}).join('');
+    h+='<button class="btn ghost" id="b-clr">履歴を削除</button> ';
+  }
+  const ON=window.FB&&FB.enabled;
+  $('#hi-body').innerHTML=h+(ON?'<h3 style="color:var(--color-accent)">オンライン保存済み</h3><p class="note">匿名ログインのため、この端末（ブラウザ）で保存した結果だけが表示・操作できます。</p><div id="hi-online"><p class="note">読み込み中…</p></div>':'');
+  if(ON)renderMine();
+  const b=$('#b-clr');if(b)b.onclick=()=>{if(!clr){clr=true;b.textContent='もう一度押すと全削除';return;}ls.set('omega_hist',[]);renderHist();toast('履歴を削除しました');};
+}
+const OD=[['anim','アニメーション',[['auto','端末設定に従う'],['off','OFF']]],['th','発現閾値（|C|）',[['0.8','0.80'],['0.85','0.85'],['0.9','0.90']]],['auto','回答後に自動で次へ進む',[['on','ON'],['off','OFF']]],['scan','走査線表示',[['on','ON'],['off','OFF']]]];
+function renderOpt(){
+  $('#op-body').innerHTML=OD.map(([k,l,v])=>`<div><b>${l}</b><div class="seg" role="radiogroup" aria-label="${l}">${v.map(([val,lb])=>`<button class="btn ghost${String(O[k])===val?' on':''}" role="radio" aria-checked="${String(O[k])===val}" data-k="${k}" data-v="${val}">${lb}</button>`).join('')}</div></div>`).join('')+'<p class="note">設定はこの端末に保存されます。発現閾値は世界観上の設定値で、次の診断から反映されます。</p>';
+  $$('#op-body [data-k]').forEach(b=>b.onclick=()=>{O[b.dataset.k]=b.dataset.v;ls.set('omega_opts',O);applyOpts();renderOpt();});
+}
+function renderWorld(){$('#cc').innerHTML=CC.map(c=>`<b>${c[0]}</b><span class="m">${c[1]}</span><span>${c[2]}</span>`).join('');}
+const CK=['c2','c1','c0','cm1','cm2'],CL5=['強く当てはまる','やや当てはまる','どちらともいえない','あまり当てはまらない','まったく当てはまらない'],CCOL=['#64ffda','#3fb8a0','#4a5568','#b06a8a','#ff6b9a'];
+let statSet='s';
+async function renderOnline(){
+  const el=$('#st-online-slot');if(!el)return;el.innerHTML='<p class="note">読み込み中…</p>';
+  try{
+    const [rq,rp]=await Promise.allSettled([FB.loadQStats(),FB.loadPublic()]);
+    const why=r=>{const c=String((r.reason&&(r.reason.code||r.reason.message))||'');return /failed-precondition|index/i.test(c)?'インデックスを作成中です。数分待ってから開き直してください。':/permission/i.test(c)?'ルールにより読み込めませんでした（'+esc(c)+'）。':'読み込めませんでした（'+esc(c)+'）。';};
+    const qs=rq.status==='fulfilled'?rq.value:null,pubs=rp.status==='fulfilled'?rp.value:null;
+    const list=statSet==='s'?Q24:buildBank(12);
+    let h='<div class="seg">'+[['s','24問の質問'],['b','48・72問の質問']].map(([k,l])=>`<button class="btn ghost${statSet===k?' on':''}" data-set="${k}">${l}</button>`).join('')+'</div><div class="note">'+CL5.map((l,i)=>`<span style="color:${CCOL[i]}">■</span>${l}`).join('　')+'</div>';
+    h+=!qs?'<p class="note">選択率：'+why(rq)+'</p>':list.map(q=>{const d=qs[q[3]]||{},n=d.n||0;
+      if(n<10)return `<div class="hi"><span class="note">${esc(q[3])}</span> ${esc(q[0])}<br><span class="note">回答数が少ないため非表示（n=${n}）</span></div>`;
+      const v=CK.map(k=>d[k]||0);
+      return `<div class="hi"><span class="note">${esc(q[3])}</span> ${esc(q[0])}<div style="display:flex;height:10px;margin:6px 0 2px">${v.map((c,i)=>`<i style="width:${c/n*100}%;background:${CCOL[i]}"></i>`).join('')}</div><span class="note">${v.map(c=>Math.round(c/n*100)+'%').join(' / ')}　n=${n}</span></div>`;}).join('');
+    h+='<h3 style="color:var(--color-accent)">公開された結果（新着）</h3>'+(!pubs?'<p class="note">'+why(rp)+'</p>':pubs.length?pubs.map(x=>{const f=F.find(y=>y.k===x.pk)||F[0];return `<div class="hi" style="border-color:${f.c}"><b>${esc(x.name)}</b>　<span style="color:${f.c}">${f.s}／${f.n}</span> ${fmt(x.v)} cf　信頼度 ${x.conf}%　${x.n}問<br><span class="note">${esc(x.cls)}　${x.at&&x.at.toDate?esc(x.at.toDate().toLocaleDateString('ja-JP')):''}</span></div>`;}).join(''):'<p class="note">公開された結果はまだありません。</p>');
+    el.innerHTML=h;$$('[data-set]').forEach(b=>b.onclick=()=>{statSet=b.dataset.set;renderOnline();});
+  }catch(e){el.innerHTML='<p class="note">オンライン統計を読み込めませんでした。</p>';console.warn(e);}
+}
+async function renderMine(){
+  const el=$('#hi-online');if(!el)return;
+  try{
+    const L=await FB.myResults();
+    el.innerHTML=L.length?L.map(x=>{const f=F.find(y=>y.k===x.pk)||F[0];return `<div class="hi" style="border-color:${f.c}"><b>${esc(x.name)}</b>　${f.s}／${f.n} ${fmt(x.v)} cf　${x.n}問　<span class="tag">${x.public?'公開中':'非公開'}</span><br><span class="note">${esc(x.cls)}</span><br><button class="btn ghost" data-pub="${x.id}" data-to="${!x.public}" style="min-height:36px;font-size:13px">${x.public?'非公開にする':'公開する'}</button> <button class="btn ghost" data-del="${x.id}" style="min-height:36px;font-size:13px">削除</button></div>`;}).join(''):'<p class="note">オンライン保存した結果はありません。</p>';
+    $$('[data-pub]').forEach(b=>b.onclick=async()=>{try{await FB.setPublic(b.dataset.pub,b.dataset.to==='true');}catch(e){toast('更新できませんでした');}renderMine();});
+    $$('[data-del]').forEach(b=>b.onclick=async()=>{if(b.dataset.arm!=='1'){b.dataset.arm='1';b.textContent='もう一度押すと削除';return;}try{await FB.del(b.dataset.del);}catch(e){toast('削除できませんでした');}renderMine();});
+  }catch(e){el.innerHTML='<p class="note">読み込めませんでした。</p>';console.warn(e);}
+}
+let SENT=false;
+function initSaveBox(){
+  const ON=window.FB&&FB.enabled;SENT=false;
+  $('#fb-state').textContent=ON?'送信ボタンを押すまで何も送信されません。選んだ項目だけが送信されます。':'この環境では Firebase に接続されていないため、オンライン保存は使えません。';
+  ['u-name','c-save','c-pub','c-stat','b-save'].forEach(id=>$('#'+id).disabled=!ON);
+  $('#u-name').value=ls.get('omega_name','');$('#b-save').textContent='SAVE ONLINE';
+}
+$('#c-pub').onchange=()=>{if($('#c-pub').checked)$('#c-save').checked=true;};
+$('#c-save').onchange=()=>{if(!$('#c-save').checked)$('#c-pub').checked=false;};
+$('#b-save').onclick=async()=>{
+  if(SENT)return;
+  const sv=$('#c-save').checked,pub=$('#c-pub').checked,st=$('#c-stat').checked;
+  if(!sv&&!st){toast('送信する項目を選んでください');return;}
+  const name=$('#u-name').value.trim();ls.set('omega_name',name);
+  $('#b-save').disabled=true;
+  try{await FB.submit({R:sv?RES:null,name,pub,stats:st,ans,Q});SENT=true;$('#b-save').textContent='送信済み';toast('送信しました');}
+  catch(e){console.warn(e);$('#b-save').disabled=false;toast('送信できませんでした');}
+};
+// Special Thanks：[表示名, XのID(@なし)]。ここに行を足していく（IDが空なら名前だけ表示）
+const THANKS=[['人物A','TwitterID']];
+$('#thanks').innerHTML=THANKS.map(([n,id])=>id?`<a href="https://x.com/${encodeURIComponent(id)}" target="_blank" rel="noopener noreferrer">${esc(n)}（@${esc(id)}）</a>`:esc(n)).join('<br>');
+const MENU={world:['s-world',renderWorld],db:['s-db',renderDB],stats:['s-stats',renderStats],notice:['s-notice'],credit:['s-credit'],hist:['s-hist',renderHist],opt:['s-opt',renderOpt]};
+$$('[data-go]').forEach(b=>b.onclick=()=>{const m=MENU[b.dataset.go];m[1]&&m[1]();show(m[0]);});
+$$('.back').forEach(b=>b.onclick=()=>show('s-title'));
+$('#b-next').onclick=()=>{if(ans[cur]!==undefined&&!lock)adv();};
+
+/* ---- イベント ---- */
+$('#b-start').onclick=()=>show('s-intro');
+(function(){
+  $('#courses').innerHTML=Object.keys(COURSES).map(n=>{const c=COURSES[n];return `<button class="course" data-n="${n}"><b class="m">${n} QUESTIONS</b><span class="tag">${c.name}</span><br>${c.desc}<br><span class="note">${c.min}</span></button>`;}).join('');
+  $$('.course').forEach(b=>b.onclick=()=>start(+b.dataset.n));
+})();
+$('#b-back').onclick=()=>{if(cur>0&&!lock){cur--;renderQ();}};
+$('#b-skip').onclick=showResult;
+$('#b-x').onclick=shareToX;
+$('#b-copy').onclick=()=>copyText(shareText());
+$('#b-retest').onclick=()=>{$('#fallback').hidden=true;show('s-title');};
+addEventListener('keydown',e=>{
+  if($('#s-q').hidden)return;
+  if(e.key>='1'&&e.key<='5') pick(OPTS[+e.key-1][1]);
+  else if(e.key==='ArrowLeft'&&cur>0&&!lock){cur--;renderQ();}
+});
+
+/* ---- 背景・タイトル演出（Anime.js。読込失敗時は静止） ---- */
+(function(){
+  const bg=$('#bg'),dots=[];
+  for(let i=0;i<28;i++){const d=document.createElement('i');d.style.left=Math.random()*100+'%';d.style.top=Math.random()*100+'%';bg.appendChild(d);dots.push(d);}
+  if(!HA||RM)return;
+  anime({targets:dots,translateX:()=>anime.random(-50,50),translateY:()=>anime.random(-50,50),opacity:[.1,.55],duration:()=>anime.random(3500,7000),direction:'alternate',loop:true,easing:'easeInOutSine',delay:()=>anime.random(0,2000)});
+  anime({targets:'#scan',translateX:['-100%','340%'],duration:2600,loop:true,easing:'linear'});
+})();
+</script>
+<script type="module">
+/* firebase 連携。window.FIREBASE_CONFIG が設定された環境（自前ホスティング等）でのみ接続する。
+   未設定／接続失敗時は FB.enabled=false のままで、診断は従来どおりローカルで動く。 */
+window.FB={enabled:false};
+const CFG=window.FIREBASE_CONFIG;
+if(CFG&&CFG.apiKey){try{
+  const B='https://www.gstatic.com/firebasejs/10.14.1/';
+  const [{initializeApp},{getAuth,signInAnonymously},S]=await Promise.all([import(B+'firebase-app.js'),import(B+'firebase-auth.js'),import(B+'firebase-firestore.js')]);
+  const {getFirestore,collection,doc,writeBatch,getDocs,query,where,orderBy,limit,serverTimestamp,increment,updateDoc,deleteDoc}=S;
+  const auth=getAuth(initializeApp(CFG)), db=getFirestore(auth.app);
+  await signInAnonymously(auth);
+  const CKM={2:'c2',1:'c1',0:'c0','-1':'cm1','-2':'cm2'};
+  const rows=s=>s.docs.map(d=>({id:d.id,...d.data()}));
+  window.FB={enabled:true,
+    // R: 結果（null なら保存しない）, stats: 各質問の選択を件数として加算するか
+    async submit({R,name,pub,stats,ans,Q}){
+      const b=writeBatch(db);
+      if(R){const p=R.primary.k;
+        b.set(doc(collection(db,'results')),{uid:auth.currentUser.uid,name:(name||'').slice(0,20)||'匿名',public:!!pub,n:R.n,pk:p,v:+R.r[p].v.toFixed(2),conf:R.conf,cls:R.cls.slice(0,80),f:Object.fromEntries(Object.entries(R.r).map(([k,x])=>[k,+x.v.toFixed(2)])),fl:R.flags.map(x=>x[0]),at:serverTimestamp()});}
+      if(stats)Q.forEach((q,i)=>{if(ans[i]!==undefined)b.set(doc(db,'qstats',q[3]),{n:increment(1),[CKM[ans[i]]]:increment(1)},{merge:true});});
+      await b.commit();
+    },
+    async loadQStats(){const o={};(await getDocs(collection(db,'qstats'))).forEach(d=>o[d.id]=d.data());return o;},
+    async loadPublic(){return rows(await getDocs(query(collection(db,'results'),where('public','==',true),orderBy('at','desc'),limit(20))));},
+    async myResults(){return rows(await getDocs(query(collection(db,'results'),where('uid','==',auth.currentUser.uid),orderBy('at','desc'),limit(30))));},
+    setPublic:(id,v)=>updateDoc(doc(db,'results',id),{public:!!v}),
+    del:id=>deleteDoc(doc(db,'results',id))
+  };
+}catch(e){console.warn('Firebase init failed',e);}}
+</script>
+</body>
+</html>
