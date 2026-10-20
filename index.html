@@ -4,66 +4,68 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ω FIELD / Ω色場観測室</title>
+<script>try{var o=JSON.parse(localStorage.getItem('omega_opts')||'{}'),t=o.theme||'dark';if(t==='auto')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t==='light'?'light':'dark';}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 /* ===== CSS（Mtps思想診断ツールの見た目に合わせた配色・書体・部品） ===== */
-:root{--color-bg:#050505;--color-text:#e0e6ed;--color-accent:#64ffda;--color-dim:#4a5568;--mute:#8493a8;--line:rgba(255,255,255,.12);--font-main:'Noto Sans JP',sans-serif;--font-mono:'Share Tech Mono',monospace;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--color-bg:#050505;--color-text:#e0e6ed;--color-accent:#64ffda;--acc-rgb:100,255,218;--color-dim:#4a5568;--mute:#8493a8;--line:rgba(255,255,255,.12);--panel:var(--panel);--hover:rgba(255,255,255,.1);--track:var(--track);--sep:#1a202c;--toast:#0b1512;--chrome:rgba(5,5,5,.7);--thr:#fff8;--zero:#000a;--cbg:rgba(255,255,255,.01);--cbd:rgba(255,255,255,.05);--shadow:0 0 50px rgba(0,0,0,.5);--scan:rgba(0,0,0,.1);--tglow:0 0 10px rgba(var(--acc-rgb),.3);--bglow:0 0 20px rgba(var(--acc-rgb),.4);--sglow:0 0 14px rgba(var(--acc-rgb),.2);--danger:var(--danger);--copy:var(--copy);--fc-a:#ff6b6b;--fc-b:#5ee08a;--fc-g:#5aa9ff;--fc-d:#b58cff;--fc-e:#ffb454;--fc-z:#e8e8f0;--s1:#64ffda;--s2:#3fb8a0;--s3:#4a5568;--s4:#b06a8a;--s5:#ff6b9a;--font-main:'Noto Sans JP',sans-serif;--font-mono:'Share Tech Mono',monospace;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme="light"]{--color-bg:#f3f5f8;--color-text:#1b2431;--color-accent:#007a66;--acc-rgb:0,122,102;--color-dim:#9aa6b6;--mute:#566275;--line:rgba(0,0,0,.16);--panel:rgba(0,0,0,.04);--hover:rgba(0,0,0,.07);--track:#d3dae4;--sep:#e0e5ec;--toast:#fff;--chrome:rgba(243,245,248,.9);--thr:rgba(0,0,0,.5);--zero:#fffc;--cbg:rgba(255,255,255,.65);--cbd:rgba(0,0,0,.08);--shadow:0 0 40px rgba(0,0,0,.08);--scan:rgba(0,0,0,.03);--tglow:none;--bglow:0 0 12px rgba(var(--acc-rgb),.25);--sglow:0 0 10px rgba(var(--acc-rgb),.18);--danger:#c62839;--copy:#7e3fd1;--fc-a:#d03030;--fc-b:#167a40;--fc-g:#2766cf;--fc-d:#7345c7;--fc-e:#9a5a00;--fc-z:#4a5568;--s1:#007a66;--s2:#4fb39d;--s3:#aab4c3;--s4:#c06a8e;--s5:#e0457b;color-scheme:light}
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--color-bg);color:var(--color-text);font:16px/1.75 var(--font-main);min-height:100vh;overflow-x:hidden}
-.scanline{position:fixed;inset:0;pointer-events:none;z-index:100;background:linear-gradient(to bottom,rgba(255,255,255,0),rgba(255,255,255,0) 50%,rgba(0,0,0,.1) 50%,rgba(0,0,0,.1));background-size:100% 4px}
+.scanline{position:fixed;inset:0;pointer-events:none;z-index:100;background:linear-gradient(to bottom,transparent,transparent 50%,var(--scan) 50%,var(--scan));background-size:100% 4px}
 #bg{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
 #bg i{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--color-accent);opacity:.2}
-main.container{position:relative;z-index:1;width:calc(100% - 24px);max-width:900px;margin:12px auto;min-height:calc(100vh - 24px);background:rgba(255,255,255,.01);border:1px solid rgba(255,255,255,.05);box-shadow:0 0 50px rgba(0,0,0,.5)}
+main.container{position:relative;z-index:1;width:calc(100% - 24px);max-width:900px;margin:12px auto;min-height:calc(100vh - 24px);background:var(--cbg);border:1px solid var(--cbd);box-shadow:var(--shadow)}
 [hidden]{display:none!important}
 .screen{padding:32px 24px 56px;min-height:inherit}
 #s-title,#s-intro{text-align:center}
 #s-title .box,#s-intro .box{text-align:left}
-h1{font-family:var(--font-mono);font-size:clamp(30px,8vw,44px);text-transform:uppercase;letter-spacing:.2em;margin:28px 0 8px;font-weight:400;color:var(--color-accent);text-shadow:0 0 10px rgba(100,255,218,.3)}
+h1{font-family:var(--font-mono);font-size:clamp(30px,8vw,44px);text-transform:uppercase;letter-spacing:.2em;margin:28px 0 8px;font-weight:400;color:var(--color-accent);text-shadow:var(--tglow)}
 h1 small{font-family:var(--font-main);letter-spacing:.3em;color:var(--color-text);text-shadow:none}
 h2{font-family:var(--font-mono);font-size:20px;font-weight:400;letter-spacing:.15em;color:var(--color-accent);margin:28px 0 10px;text-transform:uppercase}
 .sub{color:var(--mute);margin:0 0 20px}
 .cat{font-size:clamp(16px,4.2vw,19px);color:var(--mute);margin:18px auto 32px;max-width:600px}
-.scanwrap{position:relative;overflow:hidden;height:2px;background:#2d3748;margin:8px auto 18px;max-width:420px}
+.scanwrap{position:relative;overflow:hidden;height:2px;background:var(--track);margin:8px auto 18px;max-width:420px}
 #scan{position:absolute;top:0;left:0;width:30%;height:2px;background:linear-gradient(90deg,transparent,var(--color-accent),transparent);box-shadow:0 0 10px var(--color-accent)}
 .btn{background:transparent;border:1px solid var(--color-accent);color:var(--color-accent);min-height:48px;padding:0 28px;font:inherit;font-family:var(--font-mono);font-size:17px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .3s ease;white-space:nowrap}
-.btn:hover,.btn:focus-visible{background:var(--color-accent);color:var(--color-bg);box-shadow:0 0 20px rgba(100,255,218,.4);outline:none}
+.btn:hover,.btn:focus-visible{background:var(--color-accent);color:var(--color-bg);box-shadow:var(--bglow);outline:none}
 .btn.ghost{border-color:var(--line);color:var(--mute)}
-.btn.ghost:hover,.btn.ghost:focus-visible{background:rgba(255,255,255,.1);color:var(--color-text);box-shadow:none}
+.btn.ghost:hover,.btn.ghost:focus-visible{background:var(--hover);color:var(--color-text);box-shadow:none}
 .btn-x{border-color:#1DA1F2;color:#1DA1F2}.btn-x:hover,.btn-x:focus-visible{background:#1DA1F2;color:#fff;box-shadow:0 0 20px rgba(29,161,242,.4)}
-.btn-copy{border-color:#c084fc;color:#c084fc}.btn-copy:hover,.btn-copy:focus-visible{background:#c084fc;color:#fff;box-shadow:0 0 20px rgba(192,132,252,.4)}
-.box{background:rgba(255,255,255,.03);border-left:4px solid var(--color-dim);padding:16px 18px;margin:16px 0}
+.btn-copy{border-color:var(--copy);color:var(--copy)}.btn-copy:hover,.btn-copy:focus-visible{background:var(--copy);color:#fff;box-shadow:0 0 20px rgba(192,132,252,.4)}
+.box{background:var(--panel);border-left:4px solid var(--color-dim);padding:16px 18px;margin:16px 0}
 .note{font-size:13px;color:var(--mute)}
-.bar{height:4px;background:#2d3748;margin:10px 0 28px}
+.bar{height:4px;background:var(--track);margin:10px 0 28px}
 #prog{height:100%;width:0;background:var(--color-accent);box-shadow:0 0 10px var(--color-accent);transition:width .3s ease}
 .qno{font-family:var(--font-mono);color:var(--color-accent);font-size:14px;letter-spacing:.15em}
 .qtext{font-size:clamp(18px,4.8vw,24px);font-weight:700;line-height:1.6;margin:8px 0 28px;min-height:4.8em;text-align:center;display:flex;align-items:center;justify-content:center}
 #opts{display:grid;gap:12px;margin-bottom:24px}
-.opt{display:flex;align-items:center;gap:14px;width:100%;min-height:56px;padding:8px 18px;text-align:left;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);color:var(--color-text);font:inherit;cursor:pointer;transition:all .2s}
-.opt:hover,.opt:focus-visible{background:rgba(255,255,255,.1);border-color:var(--color-accent);outline:none}
-.opt.sel{border-color:var(--color-accent);background:rgba(100,255,218,.12);box-shadow:0 0 14px rgba(100,255,218,.2)}
+.opt{display:flex;align-items:center;gap:14px;width:100%;min-height:56px;padding:8px 18px;text-align:left;background:var(--panel);border:1px solid var(--line);color:var(--color-text);font:inherit;cursor:pointer;transition:all .2s}
+.opt:hover,.opt:focus-visible{background:var(--hover);border-color:var(--color-accent);outline:none}
+.opt.sel{border-color:var(--color-accent);background:rgba(var(--acc-rgb),.12);box-shadow:var(--sglow)}
 .opt kbd{font-family:var(--font-mono);color:var(--color-accent);font-size:18px}
 @media(min-width:760px){#opts{grid-template-columns:repeat(5,1fr);gap:10px}.opt{flex-direction:column;justify-content:center;text-align:center;min-height:92px;padding:8px;gap:6px;font-size:14px}}
 .al{display:flex;align-items:center;gap:14px;padding:8px 0;color:var(--mute);opacity:.25;font-family:var(--font-mono)}
 .al b{width:24px;text-align:center;font-size:20px;color:var(--color-accent);font-weight:400}
-.res-class{font-family:var(--font-mono);font-size:clamp(24px,6.4vw,36px);margin:4px 0;color:var(--color-accent);text-shadow:0 0 10px rgba(100,255,218,.3)}
+.res-class{font-family:var(--font-mono);font-size:clamp(24px,6.4vw,36px);margin:4px 0;color:var(--color-accent);text-shadow:var(--tglow)}
 #r-class{font-weight:700}
 .row{margin:18px 0}
 .rh{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:700}
 .val{font-family:var(--font-mono)}
-.gauge{position:relative;height:10px;background:#2d3748;margin:8px 0 4px;overflow:hidden}
-.gauge::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;background:#000a}
+.gauge{position:relative;height:10px;background:var(--track);margin:8px 0 4px;overflow:hidden}
+.gauge::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--zero)}
 .fill{position:absolute;top:0;bottom:0;left:50%;width:0;box-shadow:0 0 10px currentColor}
-.thr{position:absolute;top:0;bottom:0;width:1px;background:#fff8}
-.flag{border-left:4px solid #ff4757;padding:10px 14px;margin:12px 0;background:rgba(255,71,87,.08)}
-.flag code{display:block;color:#ff4757;letter-spacing:.12em;font-size:14px;font-family:var(--font-mono)}
+.thr{position:absolute;top:0;bottom:0;width:1px;background:var(--thr)}
+.flag{border-left:4px solid var(--danger);padding:10px 14px;margin:12px 0;background:rgba(255,71,87,.08)}
+.flag code{display:block;color:var(--danger);letter-spacing:.12em;font-size:14px;font-family:var(--font-mono)}
 .glitch{animation:gl .9s steps(2,end) 2}
 @keyframes gl{0%{transform:translateX(0)}30%{transform:translateX(-3px);opacity:.7}60%{transform:translateX(3px)}100%{transform:none}}
-#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#0b1512;color:var(--color-accent);border:1px solid var(--color-accent);padding:8px 18px;font-family:var(--font-mono);font-size:14px;z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--toast);color:var(--color-accent);border:1px solid var(--color-accent);padding:8px 18px;font-family:var(--font-mono);font-size:14px;z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
 #toast.on{opacity:1}
-textarea{width:100%;min-height:120px;background:rgba(255,255,255,.03);color:var(--color-text);border:1px solid var(--line);padding:8px;font:inherit}
+textarea{width:100%;min-height:120px;background:var(--panel);color:var(--color-text);border:1px solid var(--line);padding:8px;font:inherit}
 .actions{margin:24px 0;display:flex;flex-wrap:wrap;gap:12px}
 .menu{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:30px 0 8px}
 .menu .btn{min-height:42px;padding:0 16px;font-size:14px;border-color:var(--line);color:var(--mute)}
@@ -74,26 +76,31 @@ textarea{width:100%;min-height:120px;background:rgba(255,255,255,.03);color:var(
 .tag{font-family:var(--font-mono);font-size:11px;border:1px solid var(--color-accent);color:var(--color-accent);padding:0 6px;margin-left:6px}
 .seg{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 18px}
 .seg .btn{min-height:40px;padding:0 16px;font-size:14px}
-.seg .btn.on{border-color:var(--color-accent);color:var(--color-accent);background:rgba(100,255,218,.12)}
-.hi{border-left:4px solid var(--color-dim);background:rgba(255,255,255,.03);padding:10px 14px;margin:10px 0;font-size:14px}
+.seg .btn.on{border-color:var(--color-accent);color:var(--color-accent);background:rgba(var(--acc-rgb),.12)}
+.hi{border-left:4px solid var(--color-dim);background:var(--panel);padding:10px 14px;margin:10px 0;font-size:14px}
 .cr{font-family:var(--font-mono);line-height:2.2;margin:24px 0}.cr span{color:var(--mute);display:block;font-size:12px;letter-spacing:.15em;line-height:1.4;margin-top:10px}
 #b-back+#b-next{margin-left:8px}
 .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin:12px 0}
-.fc{border-left:4px solid var(--c);background:rgba(255,255,255,.03);padding:12px 16px}
+.fc{border-left:4px solid var(--c);background:var(--panel);padding:12px 16px}
 .fc b{color:var(--c);font-size:18px}.fc .t{font-family:var(--font-mono);font-size:13px;color:var(--mute);letter-spacing:.08em}
-.pr{list-style:none;padding:0}.pr li{padding:8px 0 8px 18px;border-bottom:1px solid #1a202c;position:relative}.pr li::before{content:"Ω";position:absolute;left:0;color:var(--color-accent);font-family:var(--font-mono);font-size:12px;top:11px}
+.pr{list-style:none;padding:0}.pr li{padding:8px 0 8px 18px;border-bottom:1px solid var(--sep);position:relative}.pr li::before{content:"Ω";position:absolute;left:0;color:var(--color-accent);font-family:var(--font-mono);font-size:12px;top:11px}
 .fin{text-align:center;font-size:17px;margin:32px 0 8px}
 #s-world h2{margin-top:36px}
-.course{display:block;text-align:left;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.12);color:var(--color-text);padding:14px 16px;cursor:pointer;font:inherit;line-height:1.7;transition:all .2s}
-.course:hover,.course:focus-visible{border-color:var(--color-accent);background:rgba(100,255,218,.08);box-shadow:0 0 14px rgba(100,255,218,.2);outline:none}
+.course{display:block;text-align:left;background:var(--panel);border:1px solid var(--line);color:var(--color-text);padding:14px 16px;cursor:pointer;font:inherit;line-height:1.7;transition:all .2s}
+.course:hover,.course:focus-visible{border-color:var(--color-accent);background:rgba(var(--acc-rgb),.08);box-shadow:var(--sglow);outline:none}
 .course .m{font-family:var(--font-mono);color:var(--color-accent);font-size:18px}
 label{display:block;margin:12px 0;font-size:14px}
 input[type=checkbox]{margin-right:8px;accent-color:var(--color-accent)}
-#u-name{display:block;width:100%;max-width:360px;margin-top:4px;background:rgba(255,255,255,.03);color:var(--color-text);border:1px solid var(--line);padding:8px;font:inherit}
+#u-name{display:block;width:100%;max-width:360px;margin-top:4px;background:var(--panel);color:var(--color-text);border:1px solid var(--line);padding:8px;font:inherit}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .cr a{color:var(--color-accent);text-decoration:none;border-bottom:1px dashed var(--color-accent)}
-.cr a:hover,.cr a:focus-visible{background:rgba(100,255,218,.12);outline:none}
+.cr a:hover,.cr a:focus-visible{background:rgba(var(--acc-rgb),.12);outline:none}
 #thanks{font-size:15px;line-height:2}
+#ctl{position:fixed;right:12px;top:calc(12px + env(safe-area-inset-top,0px));z-index:150;display:flex;gap:8px}
+#ctl .btn{min-height:34px;padding:0 12px;font-size:12px}
+#ctl .btn:not(:hover):not(:focus-visible){background:var(--chrome)}
+.box a{color:var(--color-accent);text-decoration:none;border-bottom:1px dashed var(--color-accent)}
+.box a:hover,.box a:focus-visible{background:rgba(var(--acc-rgb),.12);outline:none}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -129,6 +136,7 @@ input[type=checkbox]{margin-right:8px;accent-color:var(--color-accent)}
   </div>
   <h2>Course</h2>
   <div class="grid" id="courses"></div>
+  <button class="btn ghost back" style="margin-top:24px">← 戻る</button>
 </section>
 
 <!-- 質問 -->
@@ -184,6 +192,9 @@ input[type=checkbox]{margin-right:8px;accent-color:var(--color-accent)}
     X共有は投稿画面を開くだけで、自動投稿はしません。投稿文には回答内容や個人情報を含めません。
   </div>
 </section>
+<section class="screen" id="s-n72" hidden><h2>72 Question Notice</h2>
+<div class="box">このコースは72問の長時間精密モードです。６観点を各１２問ずつ測定します。<br>質問には強い表現や極端な価値観を扱うものがあります。診断結果は絶対的な評価ではなく、エンターテインメントとして扱ってください。<br>長時間になるため、疲れた場合は無理に続けず休憩してください。<br>この診断を途中で退出した場合の記録は保存されません。</div>
+<div class="actions"><button class="btn" id="b-n72go">開始する</button><button class="btn ghost" id="b-n72back">← 戻る</button></div></section>
 <section class="screen" id="s-world" hidden><h2>World</h2><p class="sub">Ω色場／Ω⁺色場 世界観（架空の設定です）</p><h2>色場とは</h2>
 <div class="box">「色」は物質として直接存在するものではない。色場の存在を仮定することで、世界の超常現象を説明できると考えられているだけである。<br>
 色場の観測値も、現象に対する影響から逆算された<b>推定値</b>であり、観測値が得られたからといって、その色場がその場所に確実に実在すると保証されるわけではない。</div>
@@ -191,17 +202,17 @@ input[type=checkbox]{margin-right:8px;accent-color:var(--color-accent)}
 <h2>Ω色場（α・β・γ）</h2>
 <p>空間の各位置には、各色場が普遍的に存在すると仮定される。その値が極端に高い生物や場所を「彩度が高い」と呼ぶ。単位は <b>cf</b>、値域は −1.0〜+1.0。能力発現の目安は、絶対値が約0.8〜0.9 cfに達すること。</p>
 <div class="grid">
-<div class="fc" style="--c:#ff6b6b"><b>α 赤色場</b><div class="t">物体・存在</div>何が存在し、どのような物理的性質を持つか。</div>
-<div class="fc" style="--c:#5ee08a"><b>β 緑色場</b><div class="t">集合・記録</div>何が結びつき、組織・記録・集合を成すか。</div>
-<div class="fc" style="--c:#5aa9ff"><b>γ 青色場</b><div class="t">論理・計算</div>何が計算・処理・論理化されるか。</div>
+<div class="fc" style="--c:var(--fc-a)"><b>α 赤色場</b><div class="t">物体・存在</div>何が存在し、どのような物理的性質を持つか。</div>
+<div class="fc" style="--c:var(--fc-b)"><b>β 緑色場</b><div class="t">集合・記録</div>何が結びつき、組織・記録・集合を成すか。</div>
+<div class="fc" style="--c:var(--fc-g)"><b>γ 青色場</b><div class="t">論理・計算</div>何が計算・処理・論理化されるか。</div>
 </div>
 
 <h2>拡張体系 Ω⁺（δ・ε・ζ）</h2>
 <p>既存のα・β・γを維持し、Ω⁺ではδ・ε・ζを追加する。<span class="note">（この企画で新規に採用する設定案）</span></p>
 <div class="grid">
-<div class="fc" style="--c:#b58cff"><b>δ 因果場</b><div class="t">因果・遷移・履歴</div>状態がどのように移行し、何が何に影響したか。時間そのものや未来予知とは同一ではない。</div>
-<div class="fc" style="--c:#ffb454"><b>ε 実現場</b><div class="t">可能性・選択・実現</div>複数の可能な状態のうち、どの状態が成立するか。無制限の願望実現を意味しない。</div>
-<div class="fc" style="--c:#e8e8f0"><b>ζ 定義場</b><div class="t">定義・境界・成立条件</div>対象を何として区別し、何を成立条件とするか。物理的境界だけでなく、定義上の境界も含む。</div>
+<div class="fc" style="--c:var(--fc-d)"><b>δ 因果場</b><div class="t">因果・遷移・履歴</div>状態がどのように移行し、何が何に影響したか。時間そのものや未来予知とは同一ではない。</div>
+<div class="fc" style="--c:var(--fc-e)"><b>ε 実現場</b><div class="t">可能性・選択・実現</div>複数の可能な状態のうち、どの状態が成立するか。無制限の願望実現を意味しない。</div>
+<div class="fc" style="--c:var(--fc-z)"><b>ζ 定義場</b><div class="t">定義・境界・成立条件</div>対象を何として区別し、何を成立条件とするか。物理的境界だけでなく、定義上の境界も含む。</div>
 </div>
 
 <h2>色類</h2>
@@ -223,13 +234,15 @@ input[type=checkbox]{margin-right:8px;accent-color:var(--color-accent)}
 <section class="screen" id="s-db" hidden><h2>Database</h2><p class="sub">色場・色類・特殊状態の資料（すべて架空の設定です）</p><div id="db-body"></div><button class="btn ghost back">← MENU</button></section>
 <section class="screen" id="s-stats" hidden><h2>Public Stats</h2><div id="st-body"></div><button class="btn ghost back">← MENU</button></section>
 <section class="screen" id="s-notice" hidden><h2>Notice</h2>
+<div class="box"><strong>注意事項 / NOTICE</strong><br>正確な結果を得るために、直感に従って正直に回答してください。<br>この診断結果は絶対的なものではありません。あくまでエンターテインメントとしてお楽しみいただき、結果を鵜吞みにしないでください。<br>この診断を途中で退出した場合の記録は保存されません。<br>バグ報告・お問い合わせは下記までお願いします。<br>official site: <a href="https://Metalepsis-delta.com/contact" target="_blank" rel="noopener noreferrer">Metalepsis-delta.com/contact</a><br>X: <a href="https://x.com/Metalepsis_jp" target="_blank" rel="noopener noreferrer">@Metalepsis_jp</a></div>
 <div class="box"><strong>色場診断について</strong><br>本診断は、架空の理論体系「Ω色場／Ω⁺色場」に基づくエンターテインメントです。表示される色場値・信頼度・分類は、回答内容を独自のモデルへ変換した推定結果であり、実在する場や超常的能力を測定・証明するものではありません。</div>
 <div class="box">診断結果は、性格・能力・健康状態などを科学的に判定するものではありません。自己理解や創作上の設定を楽しむための参考としてご利用ください。</div>
 <div class="box"><strong>データの扱い</strong><br>HISTORY と OPTION の内容は、お使いのブラウザ内（この端末）にだけ保存されます。Firebase に接続された環境では、結果画面で選んだ項目だけが、あなたが送信ボタンを押したときに送信されます。<br>・<b>結果の保存</b>：ユーザー名（空欄は「匿名」）、コース、主色場、推定値、信頼度、色類、各色場の値。「公開」を選んだ場合のみ他の人にも表示されます。公開の切替と削除は、保存した端末の HISTORY から行えます。<br>・<b>選択率の統計</b>：各質問の回答（5段階）を、ユーザー名や結果と結びつけず件数として加算します。回答数が10未満の質問は表示しません。<br>・本名・連絡先・位置情報などは収集しません。ユーザー名に個人が特定できる情報を入れないでください。<br>X共有は投稿画面を開くだけで、自動投稿はありません。</div><button class="btn ghost back">← MENU</button></section>
-<section class="screen" id="s-credit" hidden><h2>Credit</h2><div class="cr"><span>AUTHOR</span>Metalepsis_<span>PROBLEM STATEMENT PRODUCTION</span>Metalepsis_<span>PRODUCTION SUPPORT</span>Claude、ChatGPT<span>ORIGINAL WORK</span>Project_Narrative Season 1 Npec<span>ORIGINAL AUTHOR</span>Metalepsis_<span>ORIGINAL CONCEPT BY</span>Metalepsis_, Entity<span>SPECIAL THANKS</span><div id="thanks"></div></div><button class="btn ghost back">← MENU</button></section>
+<section class="screen" id="s-credit" hidden><h2>Credit</h2><div class="cr"><span>AUTHOR</span>Metalepsis_(Halifumiitami)<span>PROBLEM STATEMENT PRODUCTION</span>Metalepsis_<span>PRODUCTION SUPPORT</span>Claude<br>ChatGPT<br>Gemini<span>ORIGINAL WORK</span>Project_Narrative Season 1 Npec<span>ORIGINAL AUTHOR</span>Metalepsis_<span>ORIGINAL CONCEPT BY</span>Metalepsis_<br>EntityPENGIN(avagu_)<span>BGM</span>Onefin - Veva<br>Creo - Restless<span>SPECIAL THANKS(2026/10/20現在)</span><div id="thanks"></div>All Metalepsis_ Follower<br>All Mtps Diagnosis Player<br>All Mtps Ω Field Player<span>And</span>YOU.</div><button class="btn ghost back">← MENU</button></section>
 <section class="screen" id="s-hist" hidden><h2>History</h2><div id="hi-body"></div><button class="btn ghost back">← MENU</button></section>
 <section class="screen" id="s-opt" hidden><h2>Option</h2><div id="op-body"></div><button class="btn ghost back">← MENU</button></section>
 </main>
+<div id="ctl"><button class="btn ghost" id="b-theme">☀ LIGHT</button><button class="btn ghost" id="b-bgm" aria-pressed="true">♪ BGM ON</button></div>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -255,12 +268,12 @@ let TH=0.85; // 発現閾値（絶対値, cf）
 
 /* ---- questions.js ---- */
 const F=[
- {k:'a',s:'α',n:'赤色場',t:'物体・存在',c:'#ff6b6b',th:'具体的な事実や物の性質への着目'},
- {k:'b',s:'β',n:'緑色場',t:'集合・記録',c:'#5ee08a',th:'関係やつながりへの着目'},
- {k:'g',s:'γ',n:'青色場',t:'論理・計算',c:'#5aa9ff',th:'筋道・手順・論理への着目'},
- {k:'d',s:'δ',n:'因果場',t:'因果・遷移・履歴',c:'#b58cff',th:'経緯や因果への着目'},
- {k:'e',s:'ε',n:'実現場',t:'可能性・選択・実現',c:'#ffb454',th:'選択して実現させることへの志向'},
- {k:'z',s:'ζ',n:'定義場',t:'定義・境界・成立条件',c:'#e8e8f0',th:'定義や境界の成立条件への着目'}
+ {k:'a',s:'α',n:'赤色場',t:'物体・存在',c:'var(--fc-a)',th:'具体的な事実や物の性質への着目'},
+ {k:'b',s:'β',n:'緑色場',t:'集合・記録',c:'var(--fc-b)',th:'関係やつながりへの着目'},
+ {k:'g',s:'γ',n:'青色場',t:'論理・計算',c:'var(--fc-g)',th:'筋道・手順・論理への着目'},
+ {k:'d',s:'δ',n:'因果場',t:'因果・遷移・履歴',c:'var(--fc-d)',th:'経緯や因果への着目'},
+ {k:'e',s:'ε',n:'実現場',t:'可能性・選択・実現',c:'var(--fc-e)',th:'選択して実現させることへの志向'},
+ {k:'z',s:'ζ',n:'定義場',t:'定義・境界・成立条件',c:'var(--fc-z)',th:'定義や境界の成立条件への着目'}
 ];
 // [質問文, 重み, 逆転採点]
 const Q24=[
@@ -549,7 +562,7 @@ function analyze(){
 }
 let shown=false;
 function showResult(){
-  if(shown)return; shown=true; if(tl){tl.kill();tl=null;} saveHist(); initSaveBox();
+  if(shown)return; shown=true; if(tl){tl.kill();tl=null;} saveHist(); initSaveBox(); BGM.play('r');
   const R=RES, p=R.primary, px=R.r[p.k];
   $('#r-main').textContent=`${p.s}／${p.n}  ${fmt(px.v)} cf`;
   $('#r-class').textContent='色類：'+R.cls;
@@ -576,13 +589,36 @@ function showResult(){
     setTimeout(()=>m.textContent=keep,700);
   }
 }
-function start(n){Q=COURSES[n].build();cur=0;ans=[];shown=false;lock=false;show('s-q');renderQ();}
+function start(n){Q=COURSES[n].build();cur=0;ans=[];shown=false;lock=false;show('s-q');renderQ();BGM.unlock();BGM.play('q');}
 
 /* ---- menu.js：保存・各メニュー ---- */
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const ls={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-let O=Object.assign({anim:'auto',th:'0.85',auto:'on',scan:'on'},ls.get('omega_opts',{}));
-function applyOpts(){RM=SYS_RM||O.anim==='off';TH=[.8,.85,.9].includes(+O.th)?+O.th:.85;document.body.classList.toggle('noscan',O.scan==='off');const t=$('#thtxt');if(t)t.textContent=TH.toFixed(2);}
+let O=Object.assign({anim:'auto',th:'0.85',auto:'on',scan:'on',bgm:'on',vol:'0.5',theme:'dark'},ls.get('omega_opts',{}));
+/* ---- BGM（1.mp3＝診断中 / 2.mp3＝診断結果。index.html と同じ場所に置く） ---- */
+const BGM=(()=>{
+  const SRC={q:'1.mp3',r:'2.mp3'},el={};let now=null,want=null,unl=false;
+  const get=k=>el[k]||(el[k]=Object.assign(new Audio(SRC[k]),{loop:true,preload:'auto',volume:0}));
+  const vol=()=>Math.max(0,Math.min(1,+O.vol||.5));
+  const fade=(a,to,ms,end)=>{const from=a.volume,t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/ms);a.volume=Math.max(0,Math.min(1,from+(to-from)*p));if(p<1)requestAnimationFrame(f);else end&&end();})(t0);};
+  function stop(ms){const a=now&&el[now];now=null;if(a)fade(a,0,ms||900,()=>{if(el[now]!==a)a.pause();});}
+  function play(k){want=k;if(O.bgm==='off'||now===k)return;stop(400);const a=get(k);now=k;a.currentTime=0;const p=a.play();if(p&&p.catch)p.catch(()=>{if(now===k)now=null;});fade(a,vol(),800);}
+  return{
+    play,
+    stop(){want=null;stop();},
+    // 最初の操作（コース選択）のタイミングで結果用BGMも再生許可を取っておく（iOS等の自動再生制限対策）
+    unlock(){if(unl)return;unl=true;try{const a=get('r');a.muted=true;const p=a.play();if(p&&p.then)p.then(()=>{a.pause();a.muted=false;a.currentTime=0;}).catch(()=>{a.muted=false;});}catch(e){}},
+    sync(){const b=$('#b-bgm');if(b){b.textContent=O.bgm==='off'?'♪ BGM OFF':'♪ BGM ON';b.setAttribute('aria-pressed',O.bgm!=='off');}
+      if(O.bgm==='off')stop(300);else if(want&&!now)play(want);else if(now)el[now].volume=vol();},
+    vis(){const a=now&&el[now];if(!a)return;if(document.hidden)a.pause();else{const p=a.play();if(p&&p.catch)p.catch(()=>{});}}
+  };
+})();
+document.addEventListener('visibilitychange',()=>BGM.vis());
+$('#b-bgm').onclick=()=>{O.bgm=O.bgm==='off'?'on':'off';ls.set('omega_opts',O);applyOpts();if(!$('#s-opt').hidden)renderOpt();};
+$('#b-theme').onclick=()=>{O.theme=document.documentElement.dataset.theme==='light'?'dark':'light';ls.set('omega_opts',O);applyOpts();if(!$('#s-opt').hidden)renderOpt();};
+{const mq=matchMedia('(prefers-color-scheme: light)');if(mq.addEventListener)mq.addEventListener('change',()=>{if(O.theme==='auto')applyOpts();});}
+
+function applyOpts(){RM=SYS_RM||O.anim==='off';TH=[.8,.85,.9].includes(+O.th)?+O.th:.85;document.body.classList.toggle('noscan',O.scan==='off');const dk=O.theme==='auto'?!matchMedia('(prefers-color-scheme: light)').matches:O.theme!=='light';document.documentElement.dataset.theme=dk?'dark':'light';const tb=$('#b-theme');if(tb)tb.textContent=dk?'☀ LIGHT':'☾ DARK';const t=$('#thtxt');if(t)t.textContent=TH.toFixed(2);BGM.sync();}
 applyOpts();
 function adv(){if(cur<Q.length-1){cur++;renderQ();}else analyze();}
 function updNext(){const b=$('#b-next');b.hidden=O.auto!=='off';b.disabled=ans[cur]===undefined;b.textContent=cur<Q.length-1?'次へ →':'解析へ →';}
@@ -629,13 +665,13 @@ function renderHist(){
   if(ON)renderMine();
   const b=$('#b-clr');if(b)b.onclick=()=>{if(!clr){clr=true;b.textContent='もう一度押すと全削除';return;}ls.set('omega_hist',[]);renderHist();toast('履歴を削除しました');};
 }
-const OD=[['anim','アニメーション',[['auto','端末設定に従う'],['off','OFF']]],['th','発現閾値（|C|）',[['0.8','0.80'],['0.85','0.85'],['0.9','0.90']]],['auto','回答後に自動で次へ進む',[['on','ON'],['off','OFF']]],['scan','走査線表示',[['on','ON'],['off','OFF']]]];
+const OD=[['anim','アニメーション',[['auto','端末設定に従う'],['off','OFF']]],['th','発現閾値（|C|）',[['0.8','0.80'],['0.85','0.85'],['0.9','0.90']]],['auto','回答後に自動で次へ進む',[['on','ON'],['off','OFF']]],['scan','走査線表示',[['on','ON'],['off','OFF']]],['theme','テーマ',[['dark','ダーク'],['light','ライト'],['auto','端末に合わせる']]],['bgm','BGM',[['on','ON'],['off','OFF']]],['vol','BGM音量',[['0.3','小'],['0.5','中'],['0.8','大']]]];
 function renderOpt(){
   $('#op-body').innerHTML=OD.map(([k,l,v])=>`<div><b>${l}</b><div class="seg" role="radiogroup" aria-label="${l}">${v.map(([val,lb])=>`<button class="btn ghost${String(O[k])===val?' on':''}" role="radio" aria-checked="${String(O[k])===val}" data-k="${k}" data-v="${val}">${lb}</button>`).join('')}</div></div>`).join('')+'<p class="note">設定はこの端末に保存されます。発現閾値は世界観上の設定値で、次の診断から反映されます。</p>';
   $$('#op-body [data-k]').forEach(b=>b.onclick=()=>{O[b.dataset.k]=b.dataset.v;ls.set('omega_opts',O);applyOpts();renderOpt();});
 }
 function renderWorld(){$('#cc').innerHTML=CC.map(c=>`<b>${c[0]}</b><span class="m">${c[1]}</span><span>${c[2]}</span>`).join('');}
-const CK=['c2','c1','c0','cm1','cm2'],CL5=['強く当てはまる','やや当てはまる','どちらともいえない','あまり当てはまらない','まったく当てはまらない'],CCOL=['#64ffda','#3fb8a0','#4a5568','#b06a8a','#ff6b9a'];
+const CK=['c2','c1','c0','cm1','cm2'],CL5=['強く当てはまる','やや当てはまる','どちらともいえない','あまり当てはまらない','まったく当てはまらない'],CCOL=['var(--s1)','var(--s2)','var(--s3)','var(--s4)','var(--s5)'];
 let statSet='s';
 async function renderOnline(){
   const el=$('#st-online-slot');if(!el)return;el.innerHTML='<p class="note">読み込み中…</p>';
@@ -681,7 +717,7 @@ $('#b-save').onclick=async()=>{
   catch(e){console.warn(e);$('#b-save').disabled=false;toast('送信できませんでした');}
 };
 // Special Thanks：[表示名, XのID(@なし)]。ここに行を足していく（IDが空なら名前だけ表示）
-const THANKS=[['人物A','TwitterID']];
+const THANKS=[['レティ・エル＝パスカルナノ嬢','LettieWhiterock'],['MiZ','01satousaikou'],['ネコっち','nekoch18'],['星夜 テトリス・音ゲー好き','seiya_tetrisarc'],['𓁈ℕȩԟⷾύℾő𓁈','Neku_romansa'],['とれたてネギ','Freshleeeeeek'],['ゆとろり-i-love-cat','yutorori'],['zero','zero381190'],['霧時雨','mist_rein96c'],['202-にももに','luckySAN30'],['るぁずべりー（ﾋﾟ稲）','3txw5w'],['べむ','bem130'],['Hokori _VRC','hokorinokotyann'],['N缶/りゃむ','ppk59714'],['ｺﾑｷﾞﾁｬｿ','co_mugik0'],['Y.K.','eyV6a3AdWcAoZhY'],['スラヨシ🍇(🐥💧🦖🌱)🎼','Chcslmeyoshpkmn'],['邪神金魚/GoFi','zyakin26236'],['ただの混ぜご飯。','Nattugohan'],['Nllpsh','Nllpsh'],['つらつら草','Phyuziv'],['ふゅーちゃーめもりー@Live2d','future_memory3'],['迷える子羊','kyusai_nehan'],['み','yoridorimidoriP'],['うる','GD68617633']];
 $('#thanks').innerHTML=THANKS.map(([n,id])=>id?`<a href="https://x.com/${encodeURIComponent(id)}" target="_blank" rel="noopener noreferrer">${esc(n)}（@${esc(id)}）</a>`:esc(n)).join('<br>');
 const MENU={world:['s-world',renderWorld],db:['s-db',renderDB],stats:['s-stats',renderStats],notice:['s-notice'],credit:['s-credit'],hist:['s-hist',renderHist],opt:['s-opt',renderOpt]};
 $$('[data-go]').forEach(b=>b.onclick=()=>{const m=MENU[b.dataset.go];m[1]&&m[1]();show(m[0]);});
@@ -692,13 +728,15 @@ $('#b-next').onclick=()=>{if(ans[cur]!==undefined&&!lock)adv();};
 $('#b-start').onclick=()=>show('s-intro');
 (function(){
   $('#courses').innerHTML=Object.keys(COURSES).map(n=>{const c=COURSES[n];return `<button class="course" data-n="${n}"><b class="m">${n} QUESTIONS</b><span class="tag">${c.name}</span><br>${c.desc}<br><span class="note">${c.min}</span></button>`;}).join('');
-  $$('.course').forEach(b=>b.onclick=()=>start(+b.dataset.n));
+  $$('.course').forEach(b=>b.onclick=()=>{const n=+b.dataset.n;if(n===72)show('s-n72');else start(n);});
+  $('#b-n72go').onclick=()=>start(72);
+  $('#b-n72back').onclick=()=>show('s-intro');
 })();
 $('#b-back').onclick=()=>{if(cur>0&&!lock){cur--;renderQ();}};
 $('#b-skip').onclick=showResult;
 $('#b-x').onclick=shareToX;
 $('#b-copy').onclick=()=>copyText(shareText());
-$('#b-retest').onclick=()=>{$('#fallback').hidden=true;show('s-title');};
+$('#b-retest').onclick=()=>{$('#fallback').hidden=true;BGM.stop();show('s-title');};
 addEventListener('keydown',e=>{
   if($('#s-q').hidden)return;
   if(e.key>='1'&&e.key<='5') pick(OPTS[+e.key-1][1]);
