@@ -101,6 +101,8 @@ input[type=checkbox]{margin-right:8px;accent-color:var(--color-accent)}
 #ctl .btn:not(:hover):not(:focus-visible){background:var(--chrome)}
 .box a{color:var(--color-accent);text-decoration:none;border-bottom:1px dashed var(--color-accent)}
 .box a:hover,.box a:focus-visible{background:rgba(var(--acc-rgb),.12);outline:none}
+a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+.ver-line{margin-top:20px;font-family:var(--font-mono);letter-spacing:.1em}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -117,8 +119,9 @@ input[type=checkbox]{margin-right:8px;accent-color:var(--color-accent)}
   <p class="cat">あなたの色は、観測されたのか。<br>それとも、そう推定されたにすぎないのか。</p>
   <button class="btn" id="b-start">BEGIN OBSERVATION</button>
   <nav class="menu" aria-label="メニュー">
-    <button class="btn" data-go="world">WORLD</button><button class="btn" data-go="db">DATABASE</button><button class="btn" data-go="stats">PUBLIC STATS</button><button class="btn" data-go="notice">NOTICE</button><button class="btn" data-go="credit">CREDIT</button><button class="btn" data-go="hist">HISTORY</button><button class="btn" data-go="opt">OPTION</button>
+    <button class="btn" data-go="world">WORLD</button><button class="btn" data-go="db">DATABASE</button><button class="btn" data-go="stats">PUBLIC STATS</button><button class="btn" data-go="notice">NOTICE</button><button class="btn" data-go="credit">CREDIT</button><button class="btn" data-go="past">PAST WORK</button><button class="btn" data-go="hist">HISTORY</button><button class="btn" data-go="opt">OPTION</button>
   </nav>
+  <p class="note ver-line">Ω FIELD <span class="ver"></span></p>
   <div class="box note" style="margin-top:36px">
     <strong>色場診断について</strong><br>
     本診断は、架空の理論体系「Ω色場／Ω⁺色場」に基づくエンターテインメントです。表示される色場値・信頼度・分類は、回答を独自のモデルへ変換した推定結果であり、実在する場や超常的能力を測定・証明するものではありません。性格・能力・健康状態を科学的に判定するものでもありません。<br>
@@ -178,6 +181,7 @@ input[type=checkbox]{margin-right:8px;accent-color:var(--color-accent)}
     <button class="btn ghost" id="b-retest">RETEST</button>
   </div>
   <textarea id="fallback" hidden aria-label="コピー用テキスト" readonly></textarea>
+  <div class="box"><strong>過去作もプレイしてみる</strong><br><span class="note">Mtps思想診断ツール（思想・関係性の診断）</span><br><a href="https://unknownthedeltia.github.io/mip/" target="_blank" rel="noopener noreferrer">PLAY →</a></div>
   <div class="box" id="save-box">
     <strong>オンライン保存・公開</strong>
     <p class="note" id="fb-state"></p>
@@ -195,6 +199,10 @@ input[type=checkbox]{margin-right:8px;accent-color:var(--color-accent)}
 <section class="screen" id="s-n72" hidden><h2>72 Question Notice</h2>
 <div class="box">このコースは72問の長時間精密モードです。６観点を各１２問ずつ測定します。<br>質問には強い表現や極端な価値観を扱うものがあります。診断結果は絶対的な評価ではなく、エンターテインメントとして扱ってください。<br>長時間になるため、疲れた場合は無理に続けず休憩してください。<br>この診断を途中で退出した場合の記録は保存されません。</div>
 <div class="actions"><button class="btn" id="b-n72go">開始する</button><button class="btn ghost" id="b-n72back">← 戻る</button></div></section>
+<section class="screen" id="s-past" hidden><h2>Past Work</h2><p class="sub">過去作もプレイしてみる</p>
+<div class="box"><strong>Mtps思想診断ツール</strong><br>思想の4観点（A〜D）・8観点（A〜H）や、5×5の関係マトリクス（INPX）で診断できる、同じ作者の過去作の診断サイトです。問数の異なる複数のコースがあります。<br><span class="note">新しいタブで開きます。</span></div>
+<div class="actions"><a class="btn" href="https://unknownthedeltia.github.io/mip/" target="_blank" rel="noopener noreferrer">PLAY →</a></div>
+<button class="btn ghost back">← MENU</button></section>
 <section class="screen" id="s-world" hidden><h2>World</h2><p class="sub">Ω色場／Ω⁺色場 世界観（架空の設定です）</p><h2>色場とは</h2>
 <div class="box">「色」は物質として直接存在するものではない。色場の存在を仮定することで、世界の超常現象を説明できると考えられているだけである。<br>
 色場の観測値も、現象に対する影響から逆算された<b>推定値</b>であり、観測値が得られたからといって、その色場がその場所に確実に実在すると保証されるわけではない。</div>
@@ -238,7 +246,7 @@ input[type=checkbox]{margin-right:8px;accent-color:var(--color-accent)}
 <div class="box"><strong>色場診断について</strong><br>本診断は、架空の理論体系「Ω色場／Ω⁺色場」に基づくエンターテインメントです。表示される色場値・信頼度・分類は、回答内容を独自のモデルへ変換した推定結果であり、実在する場や超常的能力を測定・証明するものではありません。</div>
 <div class="box">診断結果は、性格・能力・健康状態などを科学的に判定するものではありません。自己理解や創作上の設定を楽しむための参考としてご利用ください。</div>
 <div class="box"><strong>データの扱い</strong><br>HISTORY と OPTION の内容は、お使いのブラウザ内（この端末）にだけ保存されます。Firebase に接続された環境では、結果画面で選んだ項目だけが、あなたが送信ボタンを押したときに送信されます。<br>・<b>結果の保存</b>：ユーザー名（空欄は「匿名」）、コース、主色場、推定値、信頼度、色類、各色場の値。「公開」を選んだ場合のみ他の人にも表示されます。公開の切替と削除は、保存した端末の HISTORY から行えます。<br>・<b>選択率の統計</b>：各質問の回答（5段階）を、ユーザー名や結果と結びつけず件数として加算します。回答数が10未満の質問は表示しません。<br>・本名・連絡先・位置情報などは収集しません。ユーザー名に個人が特定できる情報を入れないでください。<br>X共有は投稿画面を開くだけで、自動投稿はありません。</div><button class="btn ghost back">← MENU</button></section>
-<section class="screen" id="s-credit" hidden><h2>Credit</h2><div class="cr"><span>AUTHOR</span>Metalepsis_(Halifumiitami)<span>PROBLEM STATEMENT PRODUCTION</span>Metalepsis_<span>PRODUCTION SUPPORT</span>Claude<br>ChatGPT<br>Gemini<span>ORIGINAL WORK</span>Project_Narrative Season 1 Npec<span>ORIGINAL AUTHOR</span>Metalepsis_<span>ORIGINAL CONCEPT BY</span>Metalepsis_<br>EntityPENGIN(avagu_)<span>BGM</span>Onefin - Veva<br>Creo - Restless<span>SPECIAL THANKS(2026/10/20現在)</span><div id="thanks"></div>All Metalepsis_ Follower<br>All Mtps Diagnosis Player<br>All Mtps Ω Field Player<span>And</span>YOU.</div><button class="btn ghost back">← MENU</button></section>
+<section class="screen" id="s-credit" hidden><h2>Credit</h2><div class="cr"><span>AUTHOR</span>Metalepsis_(Halifumiitami)<span>PROBLEM STATEMENT PRODUCTION</span>Metalepsis_<span>PRODUCTION SUPPORT</span>Claude<br>ChatGPT<br>Gemini<span>ORIGINAL WORK</span>Project_Narrative Season 1 Npec<span>ORIGINAL AUTHOR</span>Metalepsis_<span>ORIGINAL CONCEPT BY</span>Metalepsis_<br>EntityPENGIN(avagu_)<span>BGM</span>Onefin - Veva<br>Creo - Restless<span>SPECIAL THANKS(2026/10/20現在)</span><div id="thanks"></div>All Metalepsis_ Follower<br>All Mtps Diagnosis Player<br>All Mtps Ω Field Player<span>And</span>YOU.<span>VERSION</span><b class="ver" style="font-weight:400"></b></div><button class="btn ghost back">← MENU</button></section>
 <section class="screen" id="s-hist" hidden><h2>History</h2><div id="hi-body"></div><button class="btn ghost back">← MENU</button></section>
 <section class="screen" id="s-opt" hidden><h2>Option</h2><div id="op-body"></div><button class="btn ghost back">← MENU</button></section>
 </main>
@@ -719,7 +727,10 @@ $('#b-save').onclick=async()=>{
 // Special Thanks：[表示名, XのID(@なし)]。ここに行を足していく（IDが空なら名前だけ表示）
 const THANKS=[['レティ・エル＝パスカルナノ嬢','LettieWhiterock'],['MiZ','01satousaikou'],['ネコっち','nekoch18'],['星夜 テトリス・音ゲー好き','seiya_tetrisarc'],['𓁈ℕȩԟⷾύℾő𓁈','Neku_romansa'],['とれたてネギ','Freshleeeeeek'],['ゆとろり-i-love-cat','yutorori'],['zero','zero381190'],['霧時雨','mist_rein96c'],['202-にももに','luckySAN30'],['るぁずべりー（ﾋﾟ稲）','3txw5w'],['べむ','bem130'],['Hokori _VRC','hokorinokotyann'],['N缶/りゃむ','ppk59714'],['ｺﾑｷﾞﾁｬｿ','co_mugik0'],['Y.K.','eyV6a3AdWcAoZhY'],['スラヨシ🍇(🐥💧🦖🌱)🎼','Chcslmeyoshpkmn'],['邪神金魚/GoFi','zyakin26236'],['ただの混ぜご飯。','Nattugohan'],['Nllpsh','Nllpsh'],['つらつら草','Phyuziv'],['ふゅーちゃーめもりー@Live2d','future_memory3'],['迷える子羊','kyusai_nehan'],['み','yoridorimidoriP'],['うる','GD68617633']];
 $('#thanks').innerHTML=THANKS.map(([n,id])=>id?`<a href="https://x.com/${encodeURIComponent(id)}" target="_blank" rel="noopener noreferrer">${esc(n)}（@${esc(id)}）</a>`:esc(n)).join('<br>');
-const MENU={world:['s-world',renderWorld],db:['s-db',renderDB],stats:['s-stats',renderStats],notice:['s-notice'],credit:['s-credit'],hist:['s-hist',renderHist],opt:['s-opt',renderOpt]};
+const APP_VERSION='1.0.0'; // バージョン表記（title・CREDITに表示）
+$$('.ver').forEach(e=>e.textContent='v'+APP_VERSION);
+console.info('Ω FIELD v'+APP_VERSION);
+const MENU={world:['s-world',renderWorld],db:['s-db',renderDB],stats:['s-stats',renderStats],notice:['s-notice'],past:['s-past'],credit:['s-credit'],hist:['s-hist',renderHist],opt:['s-opt',renderOpt]};
 $$('[data-go]').forEach(b=>b.onclick=()=>{const m=MENU[b.dataset.go];m[1]&&m[1]();show(m[0]);});
 $$('.back').forEach(b=>b.onclick=()=>show('s-title'));
 $('#b-next').onclick=()=>{if(ans[cur]!==undefined&&!lock)adv();};
